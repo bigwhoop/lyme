@@ -1,6 +1,7 @@
 * {
     margin  : 0;
     padding : 0;
+    border  : none;
 }
 
 body {
@@ -8,6 +9,14 @@ body {
     height      : 100%;
     font-family : Arial, sans-serif;
     font-size   : 16px;
+}
+
+textarea {
+    font-size : 14px;
+}
+
+textarea, pre, code {
+    font-family : 'Consolas', monospace;
 }
 
 p {
@@ -25,6 +34,13 @@ h3 { margin : 20px 0 8px 0; }
 
 ul {
     margin-left : 20px;
+}
+
+#right textarea {
+    background-color : #333;
+    color            : #fff;
+    padding          : 10px;
+    border-radius    : 4px;
 }
 
 #right {
