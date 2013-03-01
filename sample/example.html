@@ -4,16 +4,19 @@
         <meta charset="utf-8">
         
         <link rel="stylesheet" type="text/css" href="example.css">
-        <link rel="stylesheet" type="text/css" href="lyme.default.css">
-        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Wellfleet&subset=latin,latin-ext">
+        <link rel="stylesheet" type="text/css" href="../src/lyme.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Fjalla+One&subset=latin,latin-ext">
     </head>
     <body>
-        <div id="right">
+        <div id="content">
+            <input type="button" id="source-button" name="source-button" value="Show Source">
+            
             <div id="lyme"></div>
         </div>
-            
-        <div id="left">
-            <textarea id="markdown">
+        
+        <div id="overlay"></div>
+        <div id="source">
+            <textarea id="markdown" rows="10" cols="10">
 # Welcome to LYME
 
 LYME stands for **Low Key Markdown Editor** and guess what, it's simply that. LYME aims to stay in the background and and provide you with a distraction-free interface for writing text. 
@@ -28,13 +31,36 @@ The given text is split into blocks. A block is denoted by two line breaks. You 
 
 If you're editing a block you can use the following hot keys to navigate the editor:
 
-* `CTRL` + `ALT` + `DOWN ARROW` - Move to the next block.
-* `CTRL` + `ALT` + `UP ARROW` - Move to the previous block.
-* `CTRL` + `ALT` + `BACKSPACE` - Delete the current block.
-* `CTRL` + `ALT` + `RETURN` - Add new block below the current block.
-* `CTRL` + `ALT` + `SHIFT` + `DOWN ARROW` - Place the current block after the next block.
-* `CTRL` + `ALT` + `SHIFT` + `UP ARROW` - Place the current block before the previous block.
-* `ESCAPE` - Leave the current block.
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + DOWN ARROW&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Move to the next block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + UP ARROW&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Move to the previous block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + BACKSPACE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Delete the current block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + RETURN&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Add new block below the current block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + SHIFT + DOWN ARROW&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Place the current block after the next block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CTRL + ALT + SHIFT + UP ARROW&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Place the current block before the previous block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ESCAPE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Leave the current block.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
 ### Formatting
 
@@ -46,17 +72,17 @@ As implied by the name, LYME uses markdown to convert text into HTML. Besides th
 
 Here is some sample code that initializes a LYME editor.
 
-    <script src="jquery.min.js"></script>
-    <script src="jquery.lyme-0.1.0.js"></script>
-    <script src="showdown.min.js"></script>
-    <script>
+    &lt;script src="/lib/jquery.min.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/showdown.min.js"&gt;&lt;/script&gt;
+    &lt;script src="/src/jquery.lyme.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
         $('#lyme').lyme({
             text : '# Some Markdown Text',
             onTextChange : function(text) {
                 console.log(text);
             }
         });
-    </script>
+    &lt;/script&gt;
 
 What you decide to do on the `onTextChange()` call is up to you. You can look at the code of this page to see how you can easily read and update a textarea element.
 
@@ -79,14 +105,14 @@ Called when a block went into edit mode successfully.
         </div>
         
         <!-- jQuery -->
-        <script src="deps/jquery.min.js"></script>
+        <script src="../lib/jquery.min.js"></script>
         
         <!-- LYME -->
-        <script src="jquery.lyme-0.1.0.js"></script>
+        <script src="../src/jquery.lyme.js"></script>
         
         <!-- Dependencies -->
-        <script src="deps/showdown.min.js"></script>
-        <script src="deps/jquery.scroll-to-1.4.2.min.js"></script>
+        <script src="../lib/showdown.min.js"></script>
+        <script src="../lib/jquery.scroll-to-1.4.2.min.js"></script>
         
         <script>
             $(function() {
@@ -95,6 +121,14 @@ Called when a block went into edit mode successfully.
                     onTextChange : function(text) {
                         $('#markdown').val(text);
                     }
+                });
+                
+                $('#overlay').on('click', function() {
+                    $('#overlay,#source').hide();
+                });
+                
+                $('#source-button').on('click', function() {
+                    $('#overlay,#source').show();
                 });
             });
         </script>
