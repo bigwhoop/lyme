@@ -39,9 +39,23 @@ ul {
 
 table {
     width : 100%;
+    border-collapse: collapse;
 }
 
-tr:nth-child(odd) {
+table th {
+    text-align       : left;
+    background-color : #ccc;
+    color            : #fff;
+}
+
+table td,
+table th {
+    border    : 1px solid #ccc;
+    padding   : 2px 4px;
+    font-size : 14px;
+}
+
+table tbody tr:nth-child(odd) {
     background-color : #f5f5f5;
 }
 
@@ -83,7 +97,7 @@ tr:nth-child(odd) {
     cursor   : pointer;
 }
 
-#source {
+#markup {
     display     : none;
     position    : fixed;
     top         : 50px;
@@ -96,7 +110,7 @@ tr:nth-child(odd) {
     border-radius    : 6px;
 }
 
-#source #markdown {
+#markup textarea {
     height        : 450px;
     width         : 880px;
     padding       : 10px;

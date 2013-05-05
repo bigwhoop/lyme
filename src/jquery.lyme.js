@@ -1,5 +1,5 @@
 /**
- * This file is part of LYME (Low Key Markdown Editor).
+ * This file is part of LYME (Low Key Markup Editor).
  *
  * (c) Philippe Gerber <philippe@bigwhoop.ch>
  *
@@ -7,21 +7,31 @@
  * file that was distributed with this source code.
  */
 $.fn.lyme = function(userOptions) {
+    var lyme = this;
+    
     var defaultOptions = {
-        text         : '',
-        onTextChange : null,
-        plugins      : [],
-        basePlugins  : [
-            $.fn.lyme.plugins.showdown,
-            $.fn.lyme.plugins.scrollTo
-        ]
+        text           : '',
+        onMarkupChange : null,
+        renderer       : new $.fn.lyme.renderers.JSMarkdownExtra(),
+        plugins        : [ new $.fn.lyme.plugins.ScrollTo() ],
+        hotKeys        : $.fn.lyme.hotKeys
     };
     
     var options = $.extend(defaultOptions, userOptions);
     
-    if ($.isFunction(options.onTextChange)) {
+    // If the 'text' option is a jQuery object, we retrieve the value
+    // from this object and setup a plugin to update the underlying
+    // element whenever the text changes.
+    if (options.text instanceof $) {
+        var $e = options.text;
+        options.text = $e.val();
+        options.plugins.push(new $.fn.lyme.plugins.ValueUpdater($e, false));
+    }
+    
+    // Wrapper function to put 'onMarkupChange' option into a plugin.
+    if ($.isFunction(options.onMarkupChange)) {
         options.plugins.push({
-            onTextChange : options.onTextChange
+            onMarkupChange : options.onMarkupChange
         });
     }
     
@@ -35,18 +45,11 @@ $.fn.lyme = function(userOptions) {
             data = [];
         }
         
-        var retVal;
-        
-        var fnCall = function(plugin) {
+        options.plugins.forEach(function(plugin) {
             if ($.isFunction(plugin[event])) {
-                retVal = plugin[event].apply(null, data);
+                plugin[event].apply(null, data);
             }
-        };
-        
-        options.basePlugins.forEach(fnCall);
-        options.plugins.forEach(fnCall);
-        
-        return retVal;
+        });
     }
     
     
@@ -54,9 +57,9 @@ $.fn.lyme = function(userOptions) {
      * Creates blocks by splitting up text by "paragraphs" (two linebreaks).
      *
      * @param {String} text
-     * @return {Array}
+     * @returns {Array}
      */
-    function createBlocks(text) {
+    function splitText(text) {
         text = text.replace(/\r/g, '');
         text = text.replace(/\n\n\n/g, "\n\n");
         return text.split("\n\n");
@@ -64,20 +67,9 @@ $.fn.lyme = function(userOptions) {
 
 
     /**
-     * Converts text to HTML
-     *
-     * @param {String} text
-     * @return {String}
-     */
-    function convertTextToHTML(text) {
-        return informPlugins('onTextToHtmlConversion', [text]);
-    }
-
-
-    /**
      * Generate a random ID to assign to each block
      *
-     * @return {Number}
+     * @returns {Number}
      */
     function generateRandomBlockId() {
         return Math.floor(Math.random() * 999999);
@@ -87,212 +79,133 @@ $.fn.lyme = function(userOptions) {
     /**
      * Hide edit controls
      */
-    function hideEditor() {
-        $('.lyme-block .code:visible textarea').blur();
-        $('.lyme-block .code:visible').hide();
+    lyme.hideEditor = function() {
+        $('.lyme-block .markup:visible textarea').blur();
+        $('.lyme-block .markup:visible').hide();
         $('.lyme-block .preview').show();
-    }
-
-    /**
-     * Open the edit controls for the given box.
-     * 
-     * @param {$} $block
-     */
-    function editBlock($block) {
-        $block.find('.preview').trigger('click');
-    }
+    };
     
 
     /**
      * Render a block
      *
      * @param {String} blockText
-     * @return {$}
+     * @param {String} blockHTML        The HTML representation of blockText (optional)
+     * @returns {$.fn.lyme.Block}
      */
-    function renderBlock(blockText) {
+    lyme.createBlock = function(blockText, blockHTML) {
+        if (!blockHTML) {
+            blockHTML = options.renderer.render(blockText);
+        }
+        
         var blockId   = generateRandomBlockId(),
             $block    = $('<div id="lyme-block-' + blockId + '" class="lyme-block">'),
-            $code     = $('<div class="code">'),
-            $textarea = $('<textarea>' + blockText + '</textarea>'),
-            $preview  = $('<div class="preview">');
+            $markup   = $('<div class="markup"></div>'),
+            $textarea = $('<textarea></textarea>'),
+            $preview  = $('<div class="preview"></div>');
+        
+        $textarea.val(blockText);
+        $preview.html(blockHTML);
+        
+        $markup.hide().append($textarea);
+        $block.append($markup).append($preview);
+        
+        var block = new $.fn.lyme.Block($block);
 
-        $code.hide()
-             .append($textarea);
-
-        $block.append($code)
-              .append($preview);
-
-        $textarea.on('keydown', function(e) {
-            // TAB - Add 4 spaces and then regain focus to the textarea
-            if (e.keyCode == 9) {
-                e.preventDefault();
-                
-                var that      = this,
-                    oldCursor = that.selectionStart;
-
-                // Insert 4 spaces
-                that.value = that.value.substring(0, that.selectionStart)
-                           + '    '
-                           + that.value.substring(that.selectionEnd, that.value.length);
-
-                // Regain focus and set cursor
-                setTimeout(function() {
-                    that.focus();
-                    that.setSelectionRange(oldCursor + 4, oldCursor + 4);
-                }, 0);
-            }
+        // Helper function to update the preview text of the current block.
+        function updatePreviewText() {
+            var text           = $textarea.val(),
+                newBlocks      = splitText(text),
+                $appendToBlock = $block;
             
-            // ESCAPE - hide current editor
-            else if (27 == e.keyCode) {
-                hideEditor();
-            }
-    
-            // ALT + CTRL + SHIFT + ARROW UP - place before previous block
-            else if (e.altKey && e.ctrlKey && e.shiftKey && e.keyCode == 38) {
-                $prev = $block.prev();
-                if ($prev.length) {
-                    var thisCode = $textarea.val(),
-                        prevCode = $prev.find('.code textarea').val();
-                    
-                    $textarea.val(prevCode);
-                    $prev.find('.code textarea').val(thisCode);
-                    editBlock($prev);
-                }
-            }
-    
-            // ALT + CTRL + ARROW DOWN - place after next block
-            else if (e.altKey && e.ctrlKey && e.shiftKey && e.keyCode == 40) {
-                $next = $block.next();
-                if ($next.length) {
-                    var thisCode = $textarea.val(),
-                        nextCode = $next.find('.code textarea').val();
-                    
-                    $textarea.val(nextCode);
-                    $next.find('.code textarea').val(thisCode);
-                    editBlock($next);
-                }
-            }
-    
-            // ALT + CTRL + ARROW UP - go to previous block
-            else if (e.altKey && e.ctrlKey && e.keyCode == 38) {
-                $prev = $block.prev();
-                if ($prev.length) {
-                    editBlock($prev);
-                }
-            }
-    
-            // ALT + CTRL + ARROW DOWN - go to next block
-            else if (e.altKey && e.ctrlKey && e.keyCode == 40) {
-                $next = $block.next();
-                if ($next.length) {
-                    editBlock($next);
-                }
-            }
-    
-            // ALT + CTRL + RETURN - append new block to current block
-            else if (e.altKey && e.ctrlKey && e.keyCode == 13) {
-                var newBlockTexts = createBlocks('');
-                var $newBlock = renderBlock(newBlockTexts[0]);
-                $block.after($newBlock);
-                editBlock($newBlock);
-            }
-    
-            // ALT + CTRL + BACKSPACE - remove block
-            else if (e.altKey && e.ctrlKey && e.keyCode == 8) {
-                $textarea.val('');
+            $.each(newBlocks, function(idx, newBlockText) {
+                var newBlockHTML = options.renderer.render(newBlockText);
                 
-                $prev = $block.prev();
-                $next = $block.next();
-                if ($prev.length) {
-                    editBlock($prev);
-                } else if ($next.length) {
-                    editBlock($next);
-                } else {
-                    hideEditor();
+                // Replace current block
+                if (idx == 0) {
+                    $textarea.val(newBlockText);
+                    $preview.html(newBlockHTML);
+                }
+
+                // Append new blocks
+                else {
+                    var newBlock = lyme.createBlock(newBlockText, newBlockHTML);
+                    $appendToBlock.after(newBlock.getElement());
+                    $appendToBlock = newBlock.getElement();
+                }
+            });
+            
+            informPlugins('onMarkupChange', [getFullMarkup(), getFullHTML()]);
+        }
+
+        // We update the preview text every time the focus of the textarea is lost.
+        $textarea.on('focusout', function() {
+            informPlugins('onPreStopEditing', [block]);
+            if ($textarea.val() == '') {
+                $block.remove();
+            }
+            updatePreviewText();
+            informPlugins('onPostStopEditing', [block]);
+        });
+        
+        // If a key is pressed while editing a block, we check all the registered hot keys.
+        $textarea.on('keydown', function(e) {
+            for (var hotKeyName in options.hotKeys) {
+                var hotKey = options.hotKeys[hotKeyName];
+                if (hotKey.if(e)) {
+                    e.preventDefault();
+                    hotKey.do(lyme, block);
                 }
             }
         });
 
         // If the preview box is clicked, we show the textarea to make the block editable.
         $preview.on('click', function() {
-            hideEditor();
-            
-            informPlugins('onPreStartEditing', [$block]);
-
+            lyme.hideEditor();
+            informPlugins('onPreStartEditing', [block]);
             $preview.hide();
-            $code.show();
+            $markup.show();
             $textarea.focus();
-
-            informPlugins('onPostStartEditing', [$block]);
-        });
-        
-
-        // Helper function to update the preview text of the current block.
-        function updatePreviewText() {
-            var text           = $textarea.val(),
-                newBlocks      = createBlocks(text),
-                $appendToBlock = $block;
-            
-            $.each(newBlocks, function(idx, newBlockText) {
-                var newBlockHtml = convertTextToHTML(newBlockText);
-                
-                // Replace current block
-                if (idx == 0) {
-                    $textarea.val(newBlockText);
-                    $preview.html(newBlockHtml);
-                }
-
-                // Append new blocks
-                else {
-                    var $newBlock = renderBlock(newBlockText);
-                    $appendToBlock.after($newBlock);
-                    $appendToBlock = $newBlock;
-                }
-            });
-
-            // Extract all text and pass it to a callback.
-            informPlugins('onTextChange', [getFullText()]);
-        }
-
-        // Make sure preview text is up to date.
-        updatePreviewText();
-
-        // We update the preview text every time the focus of the textarea is lost.
-        $textarea.on('focusout', function() {
-            if ($textarea.val() == '') {
-                $block.remove();
-            }
-            
-            updatePreviewText();
+            informPlugins('onPostStartEditing', [block]);
         });
 
-        return $block;
+        return block;
+    };
+
+
+    /**
+     * Return the Markup from all blocks.
+     * 
+     * @returns {string}
+     */
+    function getFullMarkup() {
+        var fullText = [];
+        $('.lyme-block .markup textarea').each(function() {
+            fullText.push($(this).val());
+        });
+        return fullText.join("\r\n\r\n");
     }
 
 
     /**
-     * Render the complete text from all blocks/blocks
+     * Render the Markup from all blocks.
      * 
-     * @return {string}
+     * @returns {string}
      */
-    function getFullText() {
-        var fullText = [];
-
-        $('.lyme-block .code textarea').each(function() {
-            fullText.push($(this).val());
-        });
-
-        return fullText.join("\r\n\r\n");
+    function getFullHTML() {
+        return options.renderer.render(getFullMarkup());
     }
+    
 
     // Register global click event
-    $(document).on('click', function(e) {
-        hideEditor();
+    $(document).on('click', function() {
+        lyme.hideEditor();
     });
-
+    
+    
     return this.each(function() {
         var $container = $(this),
-            blocks     = createBlocks(options.text);
+            blocks     = splitText(options.text);
 
         // Stop click events from reaching the document level
         $container.on('click', function(e) {
@@ -300,12 +213,108 @@ $.fn.lyme = function(userOptions) {
         });
 
         $.each(blocks, function(idx, blockText) {
-            var $block = renderBlock(blockText);
-            $container.append($block);
+            var block = lyme.createBlock(blockText);
+            $container.append(block.getElement());
         });
-        
-        informPlugins('onTextChange', [getFullText()]);
     });
+};
+
+
+/**
+ * Wrapper object for a block.
+ * 
+ * @constructor
+ * @param {jQuery} $block
+ */
+$.fn.lyme.Block = function($block) {
+    /**
+     * Start editing this block.
+     */
+    this.edit = function() {
+        $block.find('.preview').trigger('click');
+    };
+    
+    /**
+     * Return the previous block.
+     * 
+     * @returns {$.fn.lyme.Block|Boolean}
+     */
+    this.getPreviousBlock = function() {
+        var $prev = $block.prev();
+        return $prev.length ? new $.fn.lyme.Block($prev) : false;
+    };
+    
+    /**
+     * Return the next block.
+     * 
+     * @returns {$.fn.lyme.Block|Boolean}
+     */
+    this.getNextBlock = function() {
+        var $next = $block.next();
+        return $next.length ? new $.fn.lyme.Block($next) : false;
+    };
+
+    /**
+     * @returns {String}
+     */
+    this.getMarkup = function() {
+        return $block.find('textarea').val();
+    };
+
+    /**
+     * @param {String} markup
+     */
+    this.setMarkup = function(markup) {
+        $block.find('textarea').val(markup);
+    };
+
+    /**
+     * @returns {jQuery}
+     */
+    this.getElement = function() {
+        return $block;
+    };
+};
+
+
+/**
+ * Renders transform text into HTML.
+ * 
+ * @type {Object}
+ */
+$.fn.lyme.renderers = {
+    /**
+     * Markdown Extra conversion using JS Markdown Extra.
+     * 
+     * @constructor
+     * @returns {Object}
+     */
+    JSMarkdownExtra: function() {
+        var converter;
+        this.render = function(markup) {
+            if (!converter) {
+                converter = new MarkdownExtra_Parser();
+                converter.init();
+            }
+            return converter.transform(markup);
+        }
+    },
+    
+    /**
+     * Markdown conversion using Showdown.
+     * 
+     * @constructor
+     * @returns {Object}
+     */
+    Showdown: function() {
+        var converter;
+        this.render = function(markup) {
+            if (!converter) {
+                converter = new Showdown.converter();
+            }
+            return converter.makeHtml(markup);
+        }
+    }
 };
 
 
@@ -316,43 +325,204 @@ $.fn.lyme = function(userOptions) {
  */
 $.fn.lyme.plugins = {
     /**
-     * Markdown conversion using Showdown
      * 
-     * @return {Object}
+     * @param {String} storage      Either 'memory' (default) or 'localStorage'.
+     * @param {Number} numEntries   The number of entries to keep in the back log (default: 50).
+     * @constructor
      */
-    showdown: {
-        converter : null,
-        onTextToHtmlConversion : function(text) {
-            if (!this.converter) {
-                this.converter = new Showdown.converter();
-            }
-            
-            return this.converter.makeHtml(text);
+    UndoRedo: function(storage, numEntries) {
+        if (!$.isNumeric(numEntries)) {
+            numEntries = 50;
         }
+        
+        var store;
+        switch (storage)
+        {
+            case 'localStorage':
+                store = {
+                    version: 0,
+                    prefix: 'rev-',
+                    push: function(markup) {
+                        window.localStorage.setItem(this.prefix + this.version++, markup);
+                    }
+                };
+                break;
+            
+            case 'memory':
+            default:
+                store = {
+                    entries : [],
+                    push: function(markup) {
+                        this.entries.push(markup);
+                    }
+                };
+                break;
+        }
+        
+        this.onMarkupChange = function(markup, html) {
+            store.push(markup);
+        };
     },
-
-
+    
+    /**
+     * Update an element every time the Markup changes. 
+     * 
+     * @param {String|Object} elementId     String for the element's ID or a jQuery object.
+     * @param {Boolean} useHTML             Update the element value with the HTML, instead of the Markup. Default: false.
+     * @returns {Object}
+     */
+    ValueUpdater: function(elementId, useHTML) {
+        var $e = $(elementId);
+        this.onMarkupChange = function(markup, html) {
+            $e.val(useHTML ? html : markup);
+        };
+    },
+    
     /**
      * Scroll to active block using jQuery scrollTo plugin
      * 
-     * @return {Object}
+     * @param {Number} delay
+     * @returns {Object}
      */
-    scrollTo: {
-        scrollTimeout : null,
-        onPreStartEditing : function($block) {
-            window.clearTimeout(this.scrollTimeout);
-            this.scrollTimeout = window.setTimeout(
+    ScrollTo: function(delay) {
+        if (!$.isNumeric(delay)) {
+            delay = 200;
+        }
+        
+        var scrollTimeout;
+        this.onPreStartEditing = function(block) {
+            window.clearTimeout(scrollTimeout);
+            scrollTimeout = window.setTimeout(
                 function() {
                     $.scrollTo(
-                        $block,
+                        block.getElement(),
                         {
                             duration : 750,
                             offset   : { top : -100, left : 0 }
                         }
                     );
                 },
-                200
+                delay
             );
+        };
+    }
+};
+
+
+/**
+ * Hot keys are invoked when the user on each keydown event of a block's textarea.
+ * 
+ * @type {Object}
+ */
+$.fn.lyme.hotKeys = {
+    // TAB - Add 4 spaces and then regain focus to the textarea
+    'tabbing': {
+        indentation: '    ',
+        'if': function(e) { return e.keyCode == 9; },
+        'do': function(lyme, block) {
+            var textarea  = block.getElement().find('textarea').get(0),
+                oldCursor = textarea.selectionStart;
+
+            // Insert 4 spaces
+            textarea.value = textarea.value.substring(0, textarea.selectionStart)
+                           + this.indentation
+                           + textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+
+            // Regain focus and set cursor
+            setTimeout(function() {
+                textarea.focus();
+                textarea.setSelectionRange(oldCursor + 4, oldCursor + 4);
+            }, 0);
+        }
+    },
+        
+    // ESCAPE - hide current editor
+    'escape': {
+        'if': function(e) { return e.keyCode == 27; },
+        'do': function(lyme, block) {
+            lyme.hideEditor();
+        }
+    },
+
+    // ALT + CTRL + SHIFT + ARROW UP - place before previous block
+    'place-before': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.shiftKey && e.keyCode == 38; },
+        'do': function(lyme, block) {
+            var prev = block.getPreviousBlock();
+            if (prev) {
+                var thisCode = block.getMarkup(),
+                    prevCode = prev.getMarkup();
+                
+                block.setMarkup(prevCode);
+                prev.setMarkup(thisCode);
+                prev.edit();
+            }
+        }
+    },
+
+    // ALT + CTRL + ARROW DOWN - place after next block
+    'place-after': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.shiftKey && e.keyCode == 40; },
+        'do': function(lyme, block) {
+            var next = block.getNextBlock();
+            if (next) {
+                var thisCode = block.getMarkup(),
+                    nextCode = next.getMarkup();
+                
+                block.setMarkup(nextCode);
+                next.setMarkup(thisCode);
+                next.edit();
+            }
+        }
+    },
+
+    // ALT + CTRL + ARROW UP - go to previous block
+    'move-up': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.keyCode == 38; },
+        'do': function(lyme, block) {
+            var prev = block.getPreviousBlock();
+            if (prev) {
+                prev.edit();
+            }
+        }
+    },
+
+    // ALT + CTRL + ARROW DOWN - go to next block
+    'move-down': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.keyCode == 40; },
+        'do': function(lyme, block) {
+            var next = block.getNextBlock();
+            if (next) {
+                next.edit();
+            }
+        }
+    },
+
+    // ALT + CTRL + RETURN - append new block to current block
+    'append-empty-block': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.keyCode == 13; },
+        'do': function(lyme, block) {
+            var newBlock = lyme.createBlock('', '');
+            block.getElement().after(newBlock.getElement());
+            newBlock.edit();
+        }
+    },
+
+    // ALT + CTRL + BACKSPACE - remove block
+    'remove-block': {
+        'if': function(e) { return e.altKey && e.ctrlKey && e.keyCode == 8; },
+        'do': function(lyme, block) {
+            block.setMarkup('');
+            
+            var prev = block.getPreviousBlock();
+            var next = block.getNextBlock();
+            if (prev) {
+                prev.edit();
+            } else if (next) {
+                next.edit();
+            } else {
+                lyme.hideEditor();
+            }
         }
     }
 };

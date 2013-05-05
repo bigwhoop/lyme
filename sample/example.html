@@ -9,62 +9,58 @@
     </head>
     <body>
         <div id="content">
-            <input type="button" id="source-button" name="source-button" value="Show Source">
-            
+            <input type="button" id="source-button" name="source-button" value="Show Markup">
             <div id="lyme"></div>
         </div>
         
         <div id="overlay"></div>
-        <div id="source">
-            <textarea id="markdown" rows="10" cols="10">
-# Welcome to LYME
+        
+        <div id="markup">
+<textarea rows="10" cols="10"># Welcome to LYME
 
-LYME stands for **Low Key Markdown Editor** and guess what, it's simply that. LYME aims to stay in the background and and provide you with a distraction-free interface for writing text. 
+LYME stands for **&lt;u&gt;L&lt;/u&gt;ow Ke&lt;u&gt;y&lt;/u&gt; &lt;u&gt;M&lt;/u&gt;arkup &lt;u&gt;E&lt;/u&gt;ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
 
 ## Editor
 
-### Blocks
+### Structure
 
-The given text is split into blocks. A block is denoted by two line breaks. You can click any block to edit it. As soon as you leave a block the `onTextChange()` function is called.
+The given text - or markup - is split into blocks. A block is delimited by two line breaks. Think of it as a paragraph. You can click any block to start editing. **Just try it and click this text.** As soon as you leave a block the `onMarkupChange` callback is invoked.
+
+### Markup Languages
+
+LYME ships with the following renderers:
+
+Markup Language  | Library Dependencies                                                                                  | Renderer
+---------------- | ------------------------------------------------------------------------------------------------------|-----------------------------------
+Markdown         | `lib/showdown.min.js` ([Showdown](https://github.com/coreyti/showdown))                               | `$.fn.renderers.Showdown()`
+Markdown Extra   | `lib/js-markdown-extra.js` ([JS Markdown Extra](https://github.com/tanakahisateru/js-markdown-extra)) | `$.fn.renderers.JSMarkdownExtra()`
+
+But don't worry, you can overwrite the `renderer` option and thus use any markup to HTML transformation you want. 
 
 ### Hot Keys
 
 If you're editing a block you can use the following hot keys to navigate the editor:
 
-&lt;table&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + DOWN ARROW&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Move to the next block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + UP ARROW&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Move to the previous block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + BACKSPACE&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Delete the current block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + RETURN&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Add new block below the current block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + SHIFT + DOWN ARROW&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Place the current block after the next block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;CTRL + ALT + SHIFT + UP ARROW&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Place the current block before the previous block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;ESCAPE&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Leave the current block.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
+Key Combination                   | Effect
+----------------------------------|---------------------------
+`TAB`                             | Indents code by 4 spaces.
+`CTRL + ALT + DOWN ARROW`         | Moves to the next block.
+`CTRL + ALT + UP ARROW`           | Moves to the previous block.
+`CTRL + ALT + BACKSPACE`          | Deletes the current block.
+`CTRL + ALT + RETURN`             | Adds new block below the current block.
+`CTRL + ALT + SHIFT + DOWN ARROW` | Places the current block after the next block.
+`CTRL + ALT + SHIFT + UP ARROW`   | Places the current block before the previous block.
+`ESCAPE`                          | Leaves the current block / exits the editor.
 
-### Formatting
+You can provide your own hot keys if you wish. Have a look at the `$.fn.lyme.hotKeys` object and the `hotKeys` option.
 
-As implied by the name, LYME uses markdown to convert text into HTML. Besides that, LYME provides some little helpers like support for indention.
+Some hot keys, like `TAB`, are configurable:
+
+~~~
+$.fn.lyme.hotKeys.tabbing.indentation = "\t"; // Use TAB
+$.fn.lyme.hotKeys.tabbing.indentation = '  '; // Use two spaces
+~~~
+
 
 ## Integration
 
@@ -72,36 +68,60 @@ As implied by the name, LYME uses markdown to convert text into HTML. Besides th
 
 Here is some sample code that initializes a LYME editor.
 
-    &lt;script src="/lib/jquery.min.js"&gt;&lt;/script&gt;
-    &lt;script src="/lib/showdown.min.js"&gt;&lt;/script&gt;
-    &lt;script src="/src/jquery.lyme.js"&gt;&lt;/script&gt;
-    &lt;script&gt;
-        $('#lyme').lyme({
-            text : '# Some Markdown Text',
-            onTextChange : function(text) {
-                console.log(text);
-            }
-        });
-    &lt;/script&gt;
+~~~
+&lt;scr ipt src="/lib/jquery.min.js"&gt;&lt;/script&gt;
+&lt;scr ipt src="/lib/js-markdown-extra.js"&gt;&lt;/script&gt;
+&lt;scr ipt src="/src/jquery.lyme.js"&gt;&lt;/script&gt;
+&lt;scr ipt&gt;
+    $('#lyme').lyme({
+        text : '# Some Markup Text',
+        onMarkupChange : function(markup, html) {
+            console.log(markup, html);
+        }
+    });
+&lt;/script&gt;
+~~~
 
-What you decide to do on the `onTextChange()` call is up to you. You can look at the code of this page to see how you can easily read and update a textarea element.
+LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option and LYME will automatically setup a plugin to update the element whenever the markup changes.
+
+~~~
+$('#lyme').lyme({
+    text : $('#markup')
+});
+~~~
+
 
 ### Plugins
 
-You can register plugins (simple objects) with callback functions which are called on various events. The most important one you've already seen in the previous example: The `onTextChange` option is just a wrapper for a plugin with only the `onTextChange` event.
+You can register plugins (plain objects) with callback functions which are invoked on various events.
 
-`onTextChange(string text) void`  
-Called when the Markdown of a block was updated.
+`onMarkupChange(string markup, string html)`  
+Called when the markup of a block was updated. Returns the markup and HTML of all blocks.
 
-`onTextToHtmlConversion(string text) string`  
-Called when the Markdown is converted to the HTML. Must return a string containing the HTML.
+`onBlockChange(string markup, string html)`  
+Called when the markup of a block was updated. Returns the markup and HTML of the edited block.
 
-`onPreStartEditing($.jQuery $block) void`  
+`onPreStartEditing($.fn.lyme.Block $block)`  
 Called when a block is about to go into edit mode. 
 
-`onPostStartEditing($.jQuery $block) void`  
-Called when a block went into edit mode successfully.
-            </textarea>
+`onPostStartEditing($.fn.lyme.Block block)`  
+Called after a block went into edit mode.
+
+
+### Renderers
+
+Renderers transform Markup into HTML. LYME uses Showdown per default, but you can plug in any renderer you want. Just pass in an object providing a `render(string markup) string` function as the `renderer` option.
+
+~~~
+$('#lyme').lyme({
+    renderer : {
+        render: function(markup) {
+            var html = ...;
+            return html;
+        }
+    }
+});
+~~~</textarea>
         </div>
         
         <!-- jQuery -->
@@ -111,24 +131,23 @@ Called when a block went into edit mode successfully.
         <script src="../src/jquery.lyme.js"></script>
         
         <!-- Dependencies -->
-        <script src="../lib/showdown.min.js"></script>
+        <script src="../lib/js-markdown-extra.js"></script>
         <script src="../lib/jquery.scroll-to-1.4.2.min.js"></script>
         
         <script>
             $(function() {
+                MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
+                
                 $('#lyme').lyme({
-                    text : $.trim($('#markdown').text()),
-                    onTextChange : function(text) {
-                        $('#markdown').val(text);
-                    }
+                    text : $('#markup textarea')
                 });
                 
                 $('#overlay').on('click', function() {
-                    $('#overlay,#source').hide();
+                    $('#overlay,#markup').hide();
                 });
                 
                 $('#source-button').on('click', function() {
-                    $('#overlay,#source').show();
+                    $('#overlay,#markup').show();
                 });
             });
         </script>
