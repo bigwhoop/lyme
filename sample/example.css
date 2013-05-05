@@ -8,15 +8,21 @@ body {
     width       : 100%;
     height      : 100%;
     font-family : Arial, sans-serif;
-    font-size   : 16px;
+    font-size   : 14px;
 }
 
-textarea {
-    font-size : 14px;
+textarea, pre {
+    font-size : 12px;
 }
 
 textarea, pre, code {
     font-family : 'Consolas', monospace;
+}
+
+pre {
+    padding          : 5px;
+    border-radius    : 4px;
+    background-color : #f5f5f5;
 }
 
 p {
@@ -52,7 +58,7 @@ table td,
 table th {
     border    : 1px solid #ccc;
     padding   : 2px 4px;
-    font-size : 14px;
+    font-size : 12px;
 }
 
 table tbody tr:nth-child(odd) {

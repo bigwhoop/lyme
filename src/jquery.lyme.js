@@ -367,9 +367,9 @@ $.fn.lyme.plugins = {
     /**
      * Update an element every time the Markup changes. 
      * 
+     * @constructor
      * @param {String|Object} elementId     String for the element's ID or a jQuery object.
      * @param {Boolean} useHTML             Update the element value with the HTML, instead of the Markup. Default: false.
-     * @returns {Object}
      */
     ValueUpdater: function(elementId, useHTML) {
         var $e = $(elementId);
@@ -381,10 +381,14 @@ $.fn.lyme.plugins = {
     /**
      * Scroll to active block using jQuery scrollTo plugin
      * 
+     * @constructor
      * @param {Number} delay
-     * @returns {Object}
      */
     ScrollTo: function(delay) {
+        if (!$.isFunction($.scrollTo)) {
+            return;
+        }
+        
         if (!$.isNumeric(delay)) {
             delay = 200;
         }
