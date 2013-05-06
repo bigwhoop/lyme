@@ -364,6 +364,35 @@ $.fn.lyme.plugins = {
             store.push(markup);
         };
     },
+
+
+    /**
+     * @param {Boolean} isEnabled       Whether the door guard is enabled by default.
+     * @constructor
+     */
+    ContentGuard: function(isEnabled) {
+        var hasChanged = false,
+            isEnabled  = typeof isEnabled === 'boolean' ? isEnabled : false;
+        
+        this.enable = function() {
+            isEnabled = true;
+        };
+        
+        this.disable = function() {
+            isEnabled = false;
+        };
+        
+        this.onMarkupChange = function() {
+            hasChanged = true;
+        };
+        
+        $(window).bind('beforeunload', function() {
+            if (isEnabled && hasChanged) {
+                return 'Are you sure you want to leave this page?';
+            }
+        });
+    },
+    
     
     /**
      * Update an element every time the Markup changes. 
