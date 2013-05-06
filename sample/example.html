@@ -8,15 +8,27 @@
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Fjalla+One&subset=latin,latin-ext">
     </head>
     <body>
-        <div id="content">
-            <input type="button" id="source-button" name="source-button" value="Show markup">
-            <div id="lyme"></div>
+        <div id="sidebar">
+            <h1>LYME</h1>
+            <ul>
+                <li><a href="#" id="source-button">Show Markup</a></li>
+                <li><a href="http://github.com/bigwhoop/lyme">Fork It On GitHub</a></li>
+            </ul>
+            <p>
+                &copy; 2013 Philippe Gerber<br>
+                MIT "Expat" License
+            </p>
+            <p>
+                <a href="http://bigwhoop.ch">bigwhoop.ch</a> | <a href="http://twitter.com/phphil">@phphil</a>
+            </p>
         </div>
+        
+        <div id="content" class="lyme"></div>
         
         <div id="overlay"></div>
         
         <div id="markup">
-<textarea rows="10" cols="10"># Welcome to LYME
+<textarea rows="10" cols="10" readonly># Welcome to LYME
 
 LYME stands for **&lt;u&gt;L&lt;/u&gt;ow Ke&lt;u&gt;y&lt;/u&gt; &lt;u&gt;M&lt;/u&gt;arkup &lt;u&gt;E&lt;/u&gt;ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
 
@@ -35,7 +47,7 @@ Markup Language  | Library Dependencies                                         
 Markdown         | `lib/showdown.min.js` ([Showdown](https://github.com/coreyti/showdown))                               | `$.fn.renderers.Showdown`
 Markdown Extra   | `lib/js-markdown-extra.js` ([JS Markdown Extra](https://github.com/tanakahisateru/js-markdown-extra)) | `$.fn.renderers.JSMarkdownExtra`
 
-But don't worry, you can pass the `renderer` option with an object providing a `render(string markup) string` function and plug in your own renderer.
+But don't worry, you can override the `renderer` option with an object providing a `render(string markup) string` function and plug in your own renderer.
 
 ~~~
 $('#lyme').lyme({
@@ -104,7 +116,7 @@ $('#lyme').lyme({
 
 ## Plugins
 
-Plugin enhance the capabilities of LYME. The following plugins come with LYME.
+Plugin enhance the functionality of LYME. The following plugins come with LYME.
 
 Name         | Description                                         | Library Dependencies                | Constructor                      | Enabled
 -------------|-----------------------------------------------------|-------------------------------------|----------------------------------|------------------------------
@@ -143,7 +155,7 @@ Called after a block went into edit mode.
             $(function() {
                 MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
                 
-                $('#lyme').lyme({
+                $('#content').lyme({
                     text : $('#markup textarea')
                 });
                 
@@ -151,7 +163,8 @@ Called after a block went into edit mode.
                     $('#overlay,#markup').hide();
                 });
                 
-                $('#source-button').on('click', function() {
+                $('#source-button').on('click', function(e) {
+                    e.preventDefault();
                     $('#overlay,#markup').show();
                 });
             });

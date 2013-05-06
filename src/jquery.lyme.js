@@ -197,7 +197,8 @@ $.fn.lyme = function(userOptions) {
     }
     
 
-    // Register global click event
+    // Click events normally won't bubble down to the document.
+    // So if we hit it, then hide the editor.
     $(document).on('click', function() {
         lyme.hideEditor();
     });

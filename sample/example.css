@@ -9,20 +9,21 @@ body {
     height      : 100%;
     font-family : Arial, sans-serif;
     font-size   : 14px;
+    background-color : #f5f5f5;
 }
 
 textarea, pre {
     font-size : 12px;
 }
 
-textarea, pre, code {
+pre, code {
     font-family : 'Consolas', monospace;
 }
 
 pre {
     padding          : 5px;
     border-radius    : 4px;
-    background-color : #f5f5f5;
+    background-color : #eee;
 }
 
 p {
@@ -44,8 +45,8 @@ ul {
 }
 
 table {
-    width : 100%;
-    border-collapse: collapse;
+    width           : 100%;
+    border-collapse : collapse;
 }
 
 table th {
@@ -66,29 +67,62 @@ table tbody tr:nth-child(odd) {
 }
 
 #content {
-    position : absolute;
-    top      : 50px;
-    left     : 50%;
-    width    : 800px;
-    margin   : 0 0 0 -400px;
+    background-color : #fff;
+    margin           : 0 30px 0 220px;
+    padding          : 20px;
+    max-width        : 800px;
 }
 
-#content textarea {
-    background-color : #333;
+#sidebar {
+    position         : fixed;
+    top              : 0;
+    left             : 0;
+    padding          : 20px;
+    background-color : #fff;
+    border-bottom-right-radius : 4px;
+}
+
+#sidebar h1 {
+    font-size   : 48px;
+    color       : #32CD32;
+    margin      : 0;
+}
+
+#sidebar p {
+    font-size   : 10px;
+    color       : #111;
+    margin      : 10px 0;
+    line-height : 110%;
+}
+
+#sidebar p a {
+    color : #111;
+}
+
+#sidebar ul {
+    list-style-type  : none;
+    margin           : 0 0 10px 0;
+}
+
+#sidebar li {
+    padding : 2px 0;
+}
+
+#sidebar li a {
+    display          : block;
+    background-color : #32CD32;
     color            : #fff;
-    padding          : 10px;
-    border-radius    : 4px;
+    font-weight      : bold;
+    padding          : 4px 6px;
+    cursor           : pointer;
+    border-radius    : 2px;
+    text-transform   : uppercase;
+    width            : 150px;
+    text-decoration  : none;
 }
 
-#source-button {
-    position : fixed;
-    top      : 10px;
-    left     : 10px;
-    border   : 1px solid #333;
-    padding  : 2px 4px;
-    cursor   : pointer;
-    border-radius  : 4px;
-    text-transform : uppercase;
+#sidebar li a:hover {
+    background-color : #8c841d;
 }
 
 #overlay {
@@ -112,11 +146,12 @@ table tbody tr:nth-child(odd) {
     height      : 470px;
     margin      : 0 0 0 -455px;
     padding     : 5px;
-    background-color : #ccc;
+    background-color : #32CD32;
     border-radius    : 6px;
 }
 
 #markup textarea {
+    font-family   : 'Consolas', monospace;
     height        : 450px;
     width         : 880px;
     padding       : 10px;
