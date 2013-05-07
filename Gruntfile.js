@@ -9,10 +9,17 @@ module.exports = function(grunt) {
                 src: ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js'],
                 dest: 'build/<%= pkg.name %>.min.js'
             }
+        },
+        less: {
+            all: {
+                src: 'src/lyme.less',
+                dest: 'build/lyme.css'
+            }
         }
     });
     
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-less');
     
-    grunt.registerTask('default', ['uglify']);
+    grunt.registerTask('default', ['uglify', 'less']);
 };
