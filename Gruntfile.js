@@ -7,19 +7,26 @@ module.exports = function(grunt) {
             },
             build: {
                 src: ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js'],
-                dest: 'build/<%= pkg.name %>.min.js'
+                dest: 'build/jquery.lyme.min.js'
+            }
+        },
+        concat: {
+            build: {
+                src: ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js'],
+                dest: 'build/jquery.lyme.js'
             }
         },
         less: {
-            all: {
+            build: {
                 src: 'src/lyme.less',
                 dest: 'build/lyme.css'
             }
         }
     });
     
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-less');
     
-    grunt.registerTask('default', ['uglify', 'less']);
+    grunt.registerTask('default', ['uglify', 'concat', 'less']);
 };
