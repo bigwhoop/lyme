@@ -92,17 +92,25 @@ $.fn.lyme.hotKeys.tabbing.indentation = '  '; // Use two spaces
 Here is some sample code that initializes a LYME editor.
 
 ~~~
-&lt;scr ipt src="/lib/jquery.min.js"&gt;&lt;/script&gt;
-&lt;scr ipt src="/lib/js-markdown-extra.js"&gt;&lt;/script&gt;
-&lt;scr ipt src="/src/jquery.lyme.js"&gt;&lt;/script&gt;
-&lt;scr ipt&gt;
-    $('#lyme').lyme({
-        text : "# Hi there\n\nI am text!",
-        onMarkupChange : function(markup, html) {
-            console.log(markup, html);
-        }
-    });
-&lt;/script&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;link rel="stylesheet" type="text/css" href="build/lyme.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="editor"&gt;&lt;/div&gt;
+    &lt;script src="http://code.jquery.com/jquery-1.9.1.min.js"&gt;&lt;/script&gt;
+    &lt;script src="/lib/js-markdown-extra.js"&gt;&lt;/script&gt;
+    &lt;script src="/build/jquery.lyme.min.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+        $('#editor').lyme({
+            text : "# Hi there\n\nI am text!",
+            onMarkupChange : function(markup, html) {
+                console.log(markup, html);
+            }
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 ~~~
 
 LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option and LYME will automatically setup a plugin to update the element whenever the markup changes.
@@ -118,10 +126,10 @@ $('#lyme').lyme({
 
 Plugin enhance the functionality of LYME. The following plugins come with LYME.
 
-Name         | Description                                         | Library Dependencies                | Constructor                      | Enabled
--------------|-----------------------------------------------------|-------------------------------------|----------------------------------|------------------------------
-ScrollTo     | Smooth scrolling to active block.                   | `lib/jquery.scroll-to-1.4.2.min.js` | `$.fn.lyme.plugins.ScrollTo`     | if `$.scrollTo` is available
-ValueUpdater | Updates an element's value when the markup changes. | none                                | `$.fn.lyme.plugins.ValueUpdater` | no
+Name         | Description                                         | Library Dependencies          | Constructor                      | Enabled
+-------------|-----------------------------------------------------|-------------------------------|----------------------------------|------------------------------
+ScrollTo     | Smooth scrolling to active block.                   | `lib/jquery.scroll-to.min.js` | `$.fn.lyme.plugins.ScrollTo`     | if `$.scrollTo` is available
+ValueUpdater | Updates an element's value when the markup changes. | none                          | `$.fn.lyme.plugins.ValueUpdater` | no
 
 ### Writing your own plugins
 
@@ -142,14 +150,14 @@ Called after a block went into edit mode.
         </div>
         
         <!-- jQuery -->
-        <script src="jquery.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         
         <!-- LYME -->
-        <script src="jquery.lyme.js"></script>
+        <script src="jquery.lyme.min.js"></script>
         
         <!-- Dependencies -->
         <script src="js-markdown-extra.js"></script>
-        <script src="jquery.scroll-to-1.4.2.min.js"></script>
+        <script src="jquery.scroll-to.min.js"></script>
         
         <script>
             $(function() {
