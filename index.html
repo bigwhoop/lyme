@@ -50,7 +50,8 @@
                         $('#markup textarea').val(markup);
                     },
                     plugins: [
-                        new $.fn.lyme.plugins.AjaxAdapter('README.md')
+                        new $.fn.lyme.plugins.AjaxAdapter('README.md'),
+                        new $.fn.lyme.plugins.ScrollTo()
                     ]
                 });
                 
