@@ -86,8 +86,8 @@ Here is some sample code that initializes a LYME editor.
 LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option and LYME will automatically setup a plugin to update the element whenever the markup changes.
 
 ~~~
-$('#lyme').lyme({
-    text : $('#markup')
+$('#editor').lyme({
+    text : $('#textarea')
 });
 ~~~
 
