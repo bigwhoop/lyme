@@ -1,6 +1,6 @@
 # Welcome to LYME
 
-LYME stands for **&lt;u&gt;L&lt;/u&gt;ow Ke&lt;u&gt;y&lt;/u&gt; &lt;u&gt;M&lt;/u&gt;arkup &lt;u&gt;E&lt;/u&gt;ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
+LYME stands for **<u>L</u>ow Ke<u>y</u> <u>M</u>arkup <u>E</u>ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
 
 ## Editor
 
@@ -62,25 +62,25 @@ $.fn.lyme.hotKeys.tabbing.indentation = '  '; // Use two spaces
 Here is some sample code that initializes a LYME editor.
 
 ~~~
-&lt;html&gt;
-&lt;head&gt;
-    &lt;link rel="stylesheet" type="text/css" href="build/lyme.css"&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div id="editor"&gt;&lt;/div&gt;
-    &lt;script src="http://code.jquery.com/jquery-1.9.1.min.js"&gt;&lt;/script&gt;
-    &lt;script src="/lib/js-markdown-extra.js"&gt;&lt;/script&gt;
-    &lt;script src="/build/jquery.lyme.min.js"&gt;&lt;/script&gt;
-    &lt;script&gt;
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="build/lyme.css">
+</head>
+<body>
+    <div id="editor"></div>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="/lib/js-markdown-extra.js"></script>
+    <script src="/build/jquery.lyme.min.js"></script>
+    <script>
         $('#editor').lyme({
             text : "# Hi there\n\nI am text!",
             onMarkupChange : function(markup, html) {
                 console.log(markup, html);
             }
         });
-    &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+    </script>
+</body>
+</html>
 ~~~
 
 LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option and LYME will automatically setup a plugin to update the element whenever the markup changes.
