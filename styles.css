@@ -27,8 +27,11 @@ pre {
 }
 
 p {
-    margin      : 10px 0;
     line-height : 150%;
+}
+
+p, ul, table {
+    margin : 10px 0;
 }
 
 h1, h2, h3, h4 {

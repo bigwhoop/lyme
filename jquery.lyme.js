@@ -513,7 +513,7 @@ $.fn.lyme.plugins = {
      */
     ContentGuard: function(isEnabled) {
         var hasChanged = false,
-            isEnabled  = typeof isEnabled === 'boolean' ? isEnabled : false;
+            isEnabled  = typeof isEnabled === 'boolean' ? isEnabled : true;
         
         this.enable = function() {
             isEnabled = true;
