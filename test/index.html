@@ -14,12 +14,12 @@
         
         <script>
             $('#editor').lyme({
-                text: "# Hello\n\nI'm LYME. I'm your friend.",
+                markup: "# Hello\n\nI'm LYME. I'm your friend.",
                 onMarkupChange: function() {
                     console.log('updated.')
                 },
                 plugins: [
-                    //new $.fn.lyme.plugins.ContentGuard(),
+                    new $.fn.lyme.plugins.ContentGuard(),
                 ]
             });
         </script>

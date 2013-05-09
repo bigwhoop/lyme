@@ -10,7 +10,7 @@ $.fn.lyme = function(userOptions) {
     var lyme = this;
     
     var defaultOptions = {
-        text           : '',
+        markup         : '',
         onMarkupChange : null,
         renderer       : new $.fn.lyme.renderers.JSMarkdownExtra(),
         plugins        : [ new $.fn.lyme.plugins.ScrollTo() ],
@@ -19,16 +19,16 @@ $.fn.lyme = function(userOptions) {
     
     var options = $.extend(defaultOptions, userOptions);
     
-    // If the 'text' option is a jQuery object, we setup an adapter plugin for the selected element.
-    if (options.text instanceof $) {
-        var $e = options.text;
+    // If the 'markup' option is a jQuery object, we setup an adapter plugin for the selected element.
+    if (options.markup instanceof $) {
+        var $e = options.markup;
         options.plugins.push(new $.fn.lyme.plugins.TextareaAdapter($e));
     }
     
     // Let's see, whether we can retrieve the markup from one of the plugins.
     options.plugins.forEach(function(plugin) {
         if ($.isFunction(plugin.onGetMarkup)) {
-            options.text = plugin.onGetMarkup();
+            options.markup = plugin.onGetMarkup();
         }
     });
     
@@ -209,7 +209,7 @@ $.fn.lyme = function(userOptions) {
     
     return this.each(function() {
         var $container = $(this),
-            blocks     = splitText(options.text);
+            blocks     = splitText(options.markup);
 
         // Stop click events from reaching the document level
         $container.on('click', function(e) {

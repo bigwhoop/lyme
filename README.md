@@ -76,8 +76,8 @@ Here is some sample code that initializes a LYME editor.
     <script src="/build/jquery.lyme.min.js"></script>
     <script>
         $('#editor').lyme({
-            text : "# Hi there\n\nI am text!",
-            onMarkupChange : function(markup, html) {
+            markup: "# Hi there\n\nI am text!",
+            onMarkupChange: function(markup, html) {
                 console.log(markup, html);
             }
         });
@@ -91,9 +91,20 @@ and LYME will automatically setup a plugin to update the element whenever the ma
 
 ~~~
 $('#editor').lyme({
-    text : $('#textarea')
+    markup: $('#textarea')
 });
 ~~~
+
+### Options
+
+Name              | Type                 | Description
+------------------|----------------------|-------------
+`markup`          | String or `$` Object | The initial markup to use. If a selected element is provided, it will be wrapped into TextareaAdapter plugin (see below). 
+`onMarkupChange`  | Function             | A function that is called whenever the markup changes. Also see the plugins `onMarkupChange` callback.
+`renderer`        | Object               | An object providing a `renderer(string markup) string` function (see renderers section).
+`plugins`         | Array                | See plugins section.
+`hotKeys`         | Object               | See hot keys section. Each hot key must have an unique key identifier in the `hotKeys` object.
+
 
 
 ## Plugins
@@ -193,6 +204,9 @@ window.setTimeout(function() {
 ### Writing your own plugins
 
 You can register plugins (plain objects) with callback functions which are invoked on various events.
+
+`onGetMarkup() string`  
+Called when LYME is initialized. The returned string will overwrite the `markup` option. 
 
 `onMarkupChange(string markup, string html)`  
 Called when the markup of a block was updated. Returns the markup and HTML of all blocks.
