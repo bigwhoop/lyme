@@ -117,29 +117,28 @@ $.fn.lyme = function(userOptions) {
         var block = new $.fn.lyme.Block($block);
 
         // Helper function to update the preview text of the current block.
-        function updatePreviewText() {
-            var text           = $textarea.val(),
-                newBlocks      = splitText(text),
+        function updatePreviewText(oldBlockText) {
+            var blockText = $textarea.val(),
                 $appendToBlock = $block;
             
-            $.each(newBlocks, function(idx, newBlockText) {
+            $.each(splitText(blockText), function(idx, newBlockText) {
                 var newBlockHTML = options.renderer.render(newBlockText);
                 
-                // Replace current block
-                if (idx == 0) {
+                if (idx == 0) { // Replace current block
                     $textarea.val(newBlockText);
                     $preview.html(newBlockHTML);
-                }
-
-                // Append new blocks
-                else {
+                } else { // Append new blocks
                     var newBlock = lyme.createBlock(newBlockText, newBlockHTML);
                     $appendToBlock.after(newBlock.getElement());
                     $appendToBlock = newBlock.getElement();
                 }
             });
             
-            informPlugins('onMarkupChange', [getFullMarkup(), getFullHTML()]);
+            if (oldBlockText != blockText) {
+                informPlugins('onMarkupChange', [getFullMarkup(), getFullHTML()]);
+            }
+            
+            return blockText;
         }
 
         // We update the preview text every time the focus of the textarea is lost.
@@ -148,7 +147,7 @@ $.fn.lyme = function(userOptions) {
             if ($textarea.val() == '') {
                 $block.remove();
             }
-            updatePreviewText();
+            blockText = updatePreviewText(blockText);
             informPlugins('onPostStopEditing', [block]);
         });
         

@@ -15,9 +15,11 @@
         <script>
             $('#editor').lyme({
                 text: "# Hello\n\nI'm LYME. I'm your friend.",
+                onMarkupChange: function() {
+                    console.log('updated.')
+                },
                 plugins: [
-                    new $.fn.lyme.plugins.ContentGuard(),
-                    new $.fn.lyme.plugins.AjaxAdapter('http://lyme.local/README.md')
+                    //new $.fn.lyme.plugins.ContentGuard(),
                 ]
             });
         </script>
