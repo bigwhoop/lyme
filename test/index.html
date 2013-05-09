@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="../build/lyme.css">
+    </head>
+    <body>
+        <div id="editor" class="lyme"></div>
+        
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="../build/jquery.lyme.js"></script>
+        <script src="../lib/js-markdown-extra.js"></script>
+        <script src="../lib/jquery.scroll-to.min.js"></script>
+        
+        <script>
+            $('#editor').lyme({
+                text: "# Hello\n\nI'm LYME. I'm your friend.",
+                plugins: [
+                    new $.fn.lyme.plugins.ContentGuard(),
+                    new $.fn.lyme.plugins.AjaxAdapter('http://lyme.local/README.md')
+                ]
+            });
+        </script>
+    </body>
+</html>

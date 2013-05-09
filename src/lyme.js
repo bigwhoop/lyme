@@ -19,14 +19,18 @@ $.fn.lyme = function(userOptions) {
     
     var options = $.extend(defaultOptions, userOptions);
     
-    // If the 'text' option is a jQuery object, we retrieve the value
-    // from this object and setup a plugin to update the underlying
-    // element whenever the text changes.
+    // If the 'text' option is a jQuery object, we setup an adapter plugin for the selected element.
     if (options.text instanceof $) {
         var $e = options.text;
-        options.text = $e.val();
-        options.plugins.push(new $.fn.lyme.plugins.ValueUpdater($e, false));
+        options.plugins.push(new $.fn.lyme.plugins.TextareaAdapter($e));
     }
+    
+    // Let's see, whether we can retrieve the markup from one of the plugins.
+    options.plugins.forEach(function(plugin) {
+        if ($.isFunction(plugin.onGetMarkup)) {
+            options.text = plugin.onGetMarkup();
+        }
+    });
     
     // Wrapper function to put 'onMarkupChange' option into a plugin.
     if ($.isFunction(options.onMarkupChange)) {

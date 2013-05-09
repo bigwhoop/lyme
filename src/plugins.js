@@ -55,12 +55,14 @@ $.fn.lyme.plugins = {
 
 
     /**
-     * @param {Boolean} isEnabled       Whether the door guard is enabled by default.
+     * @param {Boolean} disableOnFormSubmit     Whether to automatically disable the guard when a form is submitted.
+     * @param {Boolean} isEnabled               Whether the door guard is enabled by default.
      * @constructor
      */
-    ContentGuard: function(isEnabled) {
-        var hasChanged = false,
-            isEnabled  = typeof isEnabled === 'boolean' ? isEnabled : false;
+    ContentGuard: function(disableOnFormSubmit, isEnabled) {
+        var hasChanged          = false,
+            disableOnFormSubmit = typeof disableOnFormSubmit === 'boolean' ? disableOnFormSubmit : true,
+            isEnabled           = typeof isEnabled === 'boolean' ? isEnabled : true;
         
         this.enable = function() {
             isEnabled = true;
@@ -69,6 +71,12 @@ $.fn.lyme.plugins = {
         this.disable = function() {
             isEnabled = false;
         };
+        
+        if (disableOnFormSubmit) {
+            $(document).on('submit', 'form', function() {
+                isEnabled = false;
+            });
+        }
         
         this.onMarkupChange = function() {
             hasChanged = true;
@@ -81,18 +89,51 @@ $.fn.lyme.plugins = {
         });
     },
     
-    
     /**
-     * Update an element every time the Markup changes. 
+     * Provides the markup from the value of an element and updates the element every time the markup changes. 
      * 
      * @constructor
-     * @param {String|Object} elementId     String for the element's ID or a jQuery object.
+     * @param {String|Object} selector      String for an element selector or a jQuery object.
      * @param {Boolean} useHTML             Update the element value with the HTML, instead of the Markup. Default: false.
      */
-    ValueUpdater: function(elementId, useHTML) {
-        var $e = $(elementId);
+    TextareaAdapter: function(selector, useHTML) {
+        var $e = $(selector);
+        
+        this.onGetMarkup = function() {
+            return $e.val();
+        };
+        
         this.onMarkupChange = function(markup, html) {
             $e.val(useHTML ? html : markup);
+        };
+    },
+    
+    /**
+     * Provides the markup by GET'ing an URL and POSTs to the same URL whenever the markup changes. 
+     * 
+     * @constructor
+     * @param {String} url      The URL where the markup can be saved (per GET) or stored (per POST)
+     */
+    AjaxAdapter: function(url) {
+        this.onGetMarkup = function() {
+            var markup = 'Failed to retrieve the from ' + url;
+            $.ajax({
+                'url': url,
+                type: 'get',
+                success: function(data) {
+                    markup = data;
+                },
+                async: false
+            });
+            return markup;
+        };
+        
+        this.onMarkupChange = function(markup, html) {
+            $.ajax({
+                'url': url,
+                data: { 'markup': markup, 'html': html },
+                type: 'post'
+            });
         };
     },
     
