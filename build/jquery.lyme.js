@@ -565,32 +565,37 @@ $.fn.lyme.plugins = {
     },
     
     /**
-     * Provides the markup by GET'ing an URL and POSTs to the same URL whenever the markup changes. 
+     * Provides the markup by GET'ing it from an URL and POSTs to the a URL whenever the markup changes. 
      * 
      * @constructor
-     * @param {String} url      The URL where the markup can be saved (per GET) or stored (per POST)
+     * @param {String} getURL      The URL where to GET the markup from.
+     * @param {String} postURL     The URL where to POST the markup to.
      */
-    AjaxAdapter: function(url) {
-        this.onGetMarkup = function() {
-            var markup = 'Failed to retrieve the from ' + url;
-            $.ajax({
-                'url': url,
-                type: 'get',
-                success: function(data) {
-                    markup = data;
-                },
-                async: false
-            });
-            return markup;
-        };
+    AjaxAdapter: function(getURL, postURL) {
+        if (getURL && getURL.length) {
+            this.onGetMarkup = function() {
+                var markup = 'Failed to retrieve the from ' + url;
+                $.ajax({
+                    'url': getURL,
+                    type: 'get',
+                    success: function(data) {
+                        markup = data;
+                    },
+                    async: false
+                });
+                return markup;
+            };
+        }
         
-        this.onMarkupChange = function(markup, html) {
-            $.ajax({
-                'url': url,
-                data: { 'markup': markup, 'html': html },
-                type: 'post'
-            });
-        };
+        if (postURL && postURL.length) {
+            this.onMarkupChange = function(markup, html) {
+                $.ajax({
+                    'url': postURL,
+                    data: { 'markup': markup, 'html': html },
+                    type: 'post'
+                });
+            };
+        }
     },
     
     /**
