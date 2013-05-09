@@ -120,23 +120,43 @@ new $.fn.lyme.plugins.ScrollTo(500)
 * You must include the ScrollTo jQuery plugin: `<script src="lib/jquery.scroll-to.min.js"></script>`
 * The plugin is enabled by default, if the `$.scrollTo()` function is available.
 
-### ValueUpdater
+### TextareaAdapter
 
-Updates an element's value with whenever the markup changes.
+Reads the markup from a textarea and updates the value whenever the markup changes.
 
 ~~~
-$.fn.lyme.plugins.ValueUpdater(elementId, useHTML)
+$.fn.lyme.plugins.TextareaAdapter(elementId, useHTML)
 ~~~
 
 Param               | Type                   | Required | Default Value | Description
 --------------------|------------------------|----------|---------------|-------------
-`elementId`         | String or `$` Object   | yes      | -             | The `textarea` element's selector.
+`selector`          | String or `$` Object   | yes      | -             | The `textarea` element's selector.
 `useHTML`           | Boolean                | no       | `false`       | If `true`, the HTML and not the markup of the page is set as the element's value.
 
 ~~~
-new $.fn.lyme.plugins.ValueUpdater('#textarea')
-new $.fn.lyme.plugins.ValueUpdater($('#textarea'))
-new $.fn.lyme.plugins.ValueUpdater($('.something > textarea'), true)
+new $.fn.lyme.plugins.TextareaAdapter('#textarea')
+new $.fn.lyme.plugins.TextareaAdapter($('#textarea'))
+new $.fn.lyme.plugins.TextareaAdapter($('.something > textarea'), true)
+~~~
+
+### AjaxAdapter
+
+Retrieves the markup from an URL by making a `GET` request and `POST`s to an URL whenever the markup changes.
+
+~~~
+$.fn.lyme.plugins.AjaxAdapter(getURL, saveURL)
+~~~
+
+Param               | Type                   | Required | Default Value | Description
+--------------------|------------------------|----------|---------------|-------------
+`getURL`            | String                 | no       | -             | The URL to `GET` the markup from. Only used when a non-empty string is provided.
+`saveURL`           | String                 | no       | -             | The URL to `POST` the markup to. Two `POST` params will be sent: `markup` and `html`. Only used when a non-empty string is provided.
+
+~~~
+new $.fn.lyme.plugins.AjaxAdapter('/markup', '/markup')     // Make GET and POST requests
+new $.fn.lyme.plugins.AjaxAdapter('/markup', '')            // Only make GET request
+new $.fn.lyme.plugins.AjaxAdapter('', '/markup')            // Only make POST request
+new $.fn.lyme.plugins.AjaxAdapter('', '')                   // Be silly and do nothing
 ~~~
 
 ### ContentGuard
