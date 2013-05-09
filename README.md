@@ -109,7 +109,7 @@ Name              | Type                 | Description
 
 ## Plugins
 
-Plugin enhance the functionality of LYME. Some plugins are provided by LYME and may be even be enabled by default.
+Plugin enhance the functionality of LYME. Some plugins are provided by LYME and may even be enabled by default.
 
 ### ScrollTo
 
