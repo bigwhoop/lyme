@@ -118,7 +118,7 @@ $.fn.lyme.plugins = {
     AjaxAdapter: function(getURL, postURL) {
         if (getURL && getURL.length) {
             this.onGetMarkup = function() {
-                var markup = 'Failed to retrieve the from ' + url;
+                var markup = 'Failed to retrieve the from ' + getURL;
                 $.ajax({
                     'url': getURL,
                     type: 'get',
