@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>LYME - Low Key Markup Editor</title>
         <link rel="stylesheet" type="text/css" href="styles.css">
-        <link rel="stylesheet" type="text/css" href="lyme.css">
+        <link rel="stylesheet" type="text/css" href="build/lyme.css">
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Fjalla+One&subset=latin,latin-ext">
     </head>
     <body>
@@ -35,28 +35,24 @@
         <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         
         <!-- LYME -->
-        <script src="jquery.lyme.js"></script>
+        <script src="build/jquery.lyme.js"></script>
         
         <!-- Dependencies -->
-        <script src="js-markdown-extra.js"></script>
-        <script src="jquery.scroll-to.min.js"></script>
+        <script src="lib/js-markdown-extra.js"></script>
+        <script src="lib/jquery.scroll-to.min.js"></script>
         
         <script>
             $(function() {
                 MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
                 
-                $.get(
-                    'README.md',
-                    {},
-                    function(data) {
-                        $('#content').lyme({
-                            text: data,
-                            onMarkupChange : function(markup, html) {
-                                $('#markup textarea').val(markup);
-                            }
-                        });
-                    }
-                );
+                $('#content').lyme({
+                    onMarkupChange : function(markup) {
+                        $('#markup textarea').val(markup);
+                    },
+                    plugins: [
+                        new $.fn.lyme.plugins.AjaxAdapter('README.md')
+                    ]
+                });
                 
                 $('#overlay').on('click', function() {
                     $('#overlay,#markup').hide();
