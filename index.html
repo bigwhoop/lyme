@@ -46,6 +46,9 @@
                 MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
                 
                 $('#content').lyme({
+                    onPostInit : function(markup) {
+                        $('#markup textarea').val(markup);
+                    },
                     onMarkupChange : function(markup) {
                         $('#markup textarea').val(markup);
                     },
