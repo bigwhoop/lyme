@@ -216,4 +216,4 @@ Called after a block went into edit mode.
 
 ## Browser Support
 
-Tested in modern FF and IE 9+.
+Tested in modern FF, Chrome and IE 9+.
