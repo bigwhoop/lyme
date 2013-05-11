@@ -15,8 +15,14 @@
         <script>
             $('#editor').lyme({
                 markup: "# Hello\n\nI'm LYME. I'm your friend.",
+                onPreInit: function($container, options) {
+                    console.log('Initializing editor with options:', options);
+                },
+                onPostInit: function(markup, html) {
+                    console.log('Successfully loaded ' + markup.length + ' characters of markup.');
+                },
                 onMarkupChange: function() {
-                    console.log('updated.')
+                    console.log('The markup has changed.');
                 },
                 plugins: [
                     new $.fn.lyme.plugins.ContentGuard(),

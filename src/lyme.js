@@ -12,6 +12,8 @@ $.fn.lyme = function(userOptions) {
     var defaultOptions = {
         markup         : '',
         onMarkupChange : null,
+        onPreInit      : null,
+        onPostInit     : null,
         renderer       : new $.fn.lyme.renderers.JSMarkdownExtra(),
         plugins        : [ new $.fn.lyme.plugins.ScrollTo() ],
         hotKeys        : $.fn.lyme.hotKeys
@@ -32,12 +34,14 @@ $.fn.lyme = function(userOptions) {
         }
     });
     
-    // Wrapper function to put 'onMarkupChange' option into a plugin.
-    if ($.isFunction(options.onMarkupChange)) {
-        options.plugins.push({
-            onMarkupChange : options.onMarkupChange
-        });
-    }
+    // Wrapper function to put some options into a plugin.
+    var wrapperPlugin = {};
+    $.each(['onMarkupChange', 'onPreInit', 'onPostInit'], function() {
+        if ($.isFunction(options[this])) {
+            wrapperPlugin[this] = options[this];
+        }
+    });
+    options.plugins.push(wrapperPlugin);
     
 
     /**
@@ -210,6 +214,8 @@ $.fn.lyme = function(userOptions) {
     return this.each(function() {
         var $container = $(this),
             blocks     = splitText(options.markup);
+        
+        informPlugins('onPreInit', [$container, options]);
 
         // Stop click events from reaching the document level
         $container.on('click', function(e) {
@@ -220,6 +226,8 @@ $.fn.lyme = function(userOptions) {
             var block = lyme.createBlock(blockText);
             $container.append(block.getElement());
         });
+        
+        informPlugins('onPostInit', [getFullMarkup(), getFullHTML()]);
     });
 };
 
