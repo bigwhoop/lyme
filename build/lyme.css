@@ -13,4 +13,8 @@
   margin: 0;
   padding: 0;
   border: none;
+  outline: none;
+}
+.lyme .lyme-block .markup textarea:focus {
+  outline: none;
 }
