@@ -1,21 +1,16 @@
 # Welcome to LYME
 
-LYME stands for **<u>L</u>ow Ke<u>y</u> <u>M</u>arkup <u>E</u>ditor** and guess what, it's simply that. LYME aims to
-stay in the background and provide you with a distraction-free interface for writing text in your favorite markup
-language. 
+LYME stands for **<u>L</u>ow Ke<u>y</u> <u>M</u>arkup <u>E</u>ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
 
 ## Editor
 
-### Structure
+### Blocks
 
-The given text - or markup - is split into blocks. A block is delimited by two line breaks. Think of it as a paragraph.
-You can click any block to start editing. **Just try it and click this text.** As soon as you leave a block the
-`onMarkupChange` callback is invoked.
+The given text - or markup if you will - is split into blocks. A block is delimited by two line breaks. Think of it as a paragraph. You can click any block to start editing. **Just try it and click this text.** As soon as you leave a block the `onMarkupChange` callback is invoked.
 
-### Markup Languages
+### Renderers and Markup Languages
 
-Renderers transform markup into HTML. What markup language you use is up to you. LYME ships with the following renderers
-(*Markdown Extra* is the default renderer):
+Renderers transform markup into HTML. What markup language you use is up to you. LYME ships with the following renderers (*Markdown Extra* is the default renderer):
 
 Markup Language  | Library Dependencies                                                                                  | Constructor
 ---------------- | ------------------------------------------------------------------------------------------------------|---------------------------------
@@ -86,8 +81,7 @@ Here is some sample code that initializes a LYME editor.
 </html>
 ~~~
 
-LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option
-and LYME will automatically setup a plugin to update the element whenever the markup changes.
+LYME provides a shortcut to read and write to a textarea element. Just provide the selected element as the `text` option and LYME will automatically setup a plugin to update the element whenever the markup changes.
 
 ~~~
 $('#editor').lyme({
@@ -109,7 +103,7 @@ Name              | Type                 | Description
 
 ## Plugins
 
-Plugin enhance the functionality of LYME. Some plugins are provided by LYME and may even be enabled by default.
+Plugins enhance the functionality of LYME. Some plugins are shipped with LYME and may even be enabled by default.
 
 ### ScrollTo
 
@@ -219,3 +213,7 @@ Called when a block is about to go into edit mode.
 
 `onPostStartEditing($.fn.lyme.Block block)`  
 Called after a block went into edit mode.
+
+## Browser Support
+
+Tested in modern FF and IE 9+.
