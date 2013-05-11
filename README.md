@@ -93,12 +93,13 @@ $('#editor').lyme({
 
 Name              | Type                 | Description
 ------------------|----------------------|-------------
-`markup`          | String or `$` Object | The initial markup to use. If a selected element is provided, it will be wrapped into TextareaAdapter plugin (see below). 
+`markup`          | String or `$` Object | The initial markup to use. If a selected element is provided, it will be wrapped into TextareaAdapter plugin (see below).
+`onPreInit`       | Function             | A function that is called before the editor is initialized. Also see the plugins `onPreInit` callback.
+`onPostInit`      | Function             | A function that is called after the editor was initialized. Also see the plugins `onPostInit` callback.
 `onMarkupChange`  | Function             | A function that is called whenever the markup changes. Also see the plugins `onMarkupChange` callback.
 `renderer`        | Object               | An object providing a `renderer(string markup) string` function (see renderers section).
 `plugins`         | Array                | See plugins section.
 `hotKeys`         | Object               | See hot keys section. Each hot key must have an unique key identifier in the `hotKeys` object.
-
 
 
 ## Plugins
@@ -198,6 +199,12 @@ window.setTimeout(function() {
 ### Writing your own plugins
 
 You can register plugins (plain objects) with callback functions which are invoked on various events.
+
+`onPreInit(object $editor, object options)`  
+Called before the editor is initialized, and all the options had been assembled.
+
+`onPostInit(string markup, string html)`  
+Called after the editor was initialized.
 
 `onGetMarkup() string`  
 Called when LYME is initialized. The returned string will overwrite the `markup` option. 
