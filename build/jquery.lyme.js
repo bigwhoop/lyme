@@ -66,7 +66,7 @@ $.fn.lyme.Editor = function($container, options) {
 
         // Click events normally won't bubble down to the document.
         // So if we hit it, then hide the editor.
-        $('document').on('click', function() {
+        $(document).on('click', function() {
             editor.hideEditor();
         });
         
@@ -109,7 +109,31 @@ $.fn.lyme.Editor = function($container, options) {
     function splitText(text) {
         text = text.replace(/\r/g, '');
         text = text.replace(/\n\n\n/g, "\n\n");
-        return text.split("\n\n");
+        
+        var texts = text.split("\n\n");
+        
+        // Make sure we don't break up fenced code blocks.
+        var blocks = [];
+        var codeBlock = [];
+        for (var i = 0; i < texts.length; i++) {
+            if (codeBlock.length == 0) {
+                if (texts[i].indexOf('~~~') > -1) {
+                    codeBlock.push(texts[i]);
+                } else {
+                    blocks.push(texts[i]);
+                }
+            } else {
+                codeBlock.push(texts[i]);
+                if (texts[i].indexOf('~~~') > -1) {
+                    blocks.push(codeBlock.join("\n\n"));
+                    codeBlock = [];
+                }
+            }
+        }
+        if (codeBlock.length) {
+            blocks.push(codeBlock.join("\n\n"));
+        }
+        return blocks;
     }
 
 
