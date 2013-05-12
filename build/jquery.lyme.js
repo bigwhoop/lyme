@@ -7,8 +7,6 @@
  * file that was distributed with this source code.
  */
 $.fn.lyme = function(userOptions) {
-    var lyme = this;
-    
     var defaultOptions = {
         markup         : '',
         onMarkupChange : null,
@@ -43,6 +41,47 @@ $.fn.lyme = function(userOptions) {
     });
     options.plugins.push(wrapperPlugin);
     
+    return this.each(function() {
+        new $.fn.lyme.Editor($(this), options);
+    });
+};
+
+
+/**
+ * @param {jQuery} $container
+ * @param {Object} options
+ * @constructor
+ */
+$.fn.lyme.Editor = function($container, options) {
+    var editor = this;
+
+    /**
+     * Initialized the editor
+     */
+    function initialize() {
+        // Stop click events from reaching the document level
+        $container.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Click events normally won't bubble down to the document.
+        // So if we hit it, then hide the editor.
+        $('document').on('click', function() {
+            editor.hideEditor();
+        });
+        
+        // Pass this lyme object to each plugin that has a 'setEditor()' method.    
+        options.plugins.forEach(function(plugin) {
+            if ($.isFunction(plugin.setEditor)) {
+                plugin.setEditor(editor);
+            }
+        });
+        
+        informPlugins('onPreInit', [$container, options]);
+        editor.setMarkup(options.markup);
+        informPlugins('onPostInit', [editor.getFullMarkup(), editor.getFullHTML()]);
+    }
+    
 
     /**
      * @param {String} event
@@ -75,23 +114,12 @@ $.fn.lyme = function(userOptions) {
 
 
     /**
-     * Generate a random ID to assign to each block
-     *
      * @returns {Number}
      */
-    function generateRandomBlockId() {
-        return Math.floor(Math.random() * 999999);
+    var lastBlockId = 0;
+    function getNextBlockId() {
+        return lastBlockId++;
     }
-
-
-    /**
-     * Hide edit controls
-     */
-    lyme.hideEditor = function() {
-        $('.lyme-block .markup:visible textarea').blur();
-        $('.lyme-block .markup:visible').hide();
-        $('.lyme-block .preview').show();
-    };
     
 
     /**
@@ -101,12 +129,12 @@ $.fn.lyme = function(userOptions) {
      * @param {String} blockHTML        The HTML representation of blockText (optional)
      * @returns {$.fn.lyme.Block}
      */
-    lyme.createBlock = function(blockText, blockHTML) {
+    editor.createBlock = function(blockText, blockHTML) {
         if (!blockHTML) {
             blockHTML = options.renderer.render(blockText);
         }
         
-        var blockId   = generateRandomBlockId(),
+        var blockId   = getNextBlockId(),
             $block    = $('<div id="lyme-block-' + blockId + '" class="lyme-block">'),
             $markup   = $('<div class="markup"></div>'),
             $textarea = $('<textarea></textarea>'),
@@ -132,14 +160,14 @@ $.fn.lyme = function(userOptions) {
                     $textarea.val(newBlockText);
                     $preview.html(newBlockHTML);
                 } else { // Append new blocks
-                    var newBlock = lyme.createBlock(newBlockText, newBlockHTML);
+                    var newBlock = editor.createBlock(newBlockText, newBlockHTML);
                     $appendToBlock.after(newBlock.getElement());
                     $appendToBlock = newBlock.getElement();
                 }
             });
             
             if (oldBlockText != blockText) {
-                informPlugins('onMarkupChange', [getFullMarkup(), getFullHTML()]);
+                informPlugins('onMarkupChange', [editor.getFullMarkup(), editor.getFullHTML()]);
             }
             
             return blockText;
@@ -161,14 +189,14 @@ $.fn.lyme = function(userOptions) {
                 var hotKey = options.hotKeys[hotKeyName];
                 if (hotKey.if(e)) {
                     e.preventDefault();
-                    hotKey.do(lyme, block);
+                    hotKey.do(editor, block);
                 }
             }
         });
 
         // If the preview box is clicked, we show the textarea to make the block editable.
         $preview.on('click', function() {
-            lyme.hideEditor();
+            editor.hideEditor();
             informPlugins('onPreStartEditing', [block]);
             $preview.hide();
             $markup.show();
@@ -185,13 +213,13 @@ $.fn.lyme = function(userOptions) {
      * 
      * @returns {string}
      */
-    function getFullMarkup() {
+    editor.getFullMarkup = function() {
         var fullText = [];
-        $('.lyme-block .markup textarea').each(function() {
+        $container.find('.lyme-block .markup textarea').each(function() {
             fullText.push($(this).val());
         });
         return fullText.join("\r\n\r\n");
-    }
+    };
 
 
     /**
@@ -199,42 +227,47 @@ $.fn.lyme = function(userOptions) {
      * 
      * @returns {string}
      */
-    function getFullHTML() {
-        return options.renderer.render(getFullMarkup());
-    }
-    
+    editor.getFullHTML = function() {
+        return options.renderer.render(editor.getFullMarkup());
+    };
 
-    // Click events normally won't bubble down to the document.
-    // So if we hit it, then hide the editor.
-    $(document).on('click', function() {
-        lyme.hideEditor();
-    });
-    
-    
-    return this.each(function() {
-        var $container = $(this),
-            blocks     = splitText(options.markup);
-        
-        informPlugins('onPreInit', [$container, options]);
 
-        // Stop click events from reaching the document level
-        $container.on('click', function(e) {
-            e.stopPropagation();
-        });
-
-        $.each(blocks, function(idx, blockText) {
-            var block = lyme.createBlock(blockText);
+    /**
+     * @param {String} markup
+     */
+    editor.setMarkup = function(markup) {
+        $container.empty();
+        $.each(splitText(markup), function(idx, blockText) {
+            var block = editor.createBlock(blockText);
             $container.append(block.getElement());
         });
-        
-        informPlugins('onPostInit', [getFullMarkup(), getFullHTML()]);
-    });
+    };
+
+
+    /**
+     * Return the element of this LYME editor.
+     * 
+     * @returns {jQuery}
+     */
+    editor.getElement = function() {
+        return $container;
+    };
+
+
+    /**
+     * Hide edit controls
+     */
+    editor.hideEditor = function() {
+        $container.find('.lyme-block .markup:visible textarea').blur();
+        $container.find('.lyme-block .markup:visible').hide();
+        $container.find('.lyme-block .preview').show();
+    };
+    
+    initialize();
 };
 
 
 /**
- * Wrapper object for a block.
- * 
  * @constructor
  * @param {jQuery} $block
  */
@@ -478,47 +511,6 @@ $.fn.lyme.hotKeys = {
  */
 $.fn.lyme.plugins = {
     /**
-     * 
-     * @param {String} storage      Either 'memory' (default) or 'localStorage'.
-     * @param {Number} numEntries   The number of entries to keep in the back log (default: 50).
-     * @constructor
-     */
-    UndoRedo: function(storage, numEntries) {
-        if (!$.isNumeric(numEntries)) {
-            numEntries = 50;
-        }
-        
-        var store;
-        switch (storage)
-        {
-            case 'localStorage':
-                store = {
-                    version: 0,
-                    prefix: 'rev-',
-                    push: function(markup) {
-                        window.localStorage.setItem(this.prefix + this.version++, markup);
-                    }
-                };
-                break;
-            
-            case 'memory':
-            default:
-                store = {
-                    entries : [],
-                    push: function(markup) {
-                        this.entries.push(markup);
-                    }
-                };
-                break;
-        }
-        
-        this.onMarkupChange = function(markup, html) {
-            store.push(markup);
-        };
-    },
-
-
-    /**
      * @param {Boolean} disableOnFormSubmit     Whether to automatically disable the guard when a form is submitted.
      * @param {Boolean} isEnabled               Whether the door guard is enabled by default.
      * @constructor
@@ -638,4 +630,142 @@ $.fn.lyme.plugins = {
             );
         };
     }
+};
+/**
+ * This file is part of LYME (Low Key Markup Editor).
+ *
+ * (c) Philippe Gerber <philippe@bigwhoop.ch>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
+ * @param {String} storage      Either 'memory' (default) or 'localStorage'.
+ * @constructor
+ */
+$.fn.lyme.plugins.UndoRedo = function(storage) {
+    var store;
+    switch (storage)
+    {
+        case 'localStorage':  store = new $.fn.lyme.plugins.UndoRedo.LocalStorage();   break;
+        case 'memory':
+        default:              store = new $.fn.lyme.plugins.UndoRedo.MemoryStorage();  break;
+    }
+    
+    var editor;
+
+    /**
+     * @param {$.fn.lyme.Editor} e
+     */
+    this.setEditor = function(e) {
+        editor = e;
+    };
+    
+    this.undo = function() {
+        editor.setMarkup(store.undo());
+    };
+    
+    this.redo = function() {
+        editor.setMarkup(store.redo());
+    };
+    
+    /**
+     * @param {String} markup
+     */
+    this.onPostInit = function(markup) {
+        editor.setMarkup(store.init(markup));
+    };
+    
+    /**
+     * @param {String} markup
+     */
+    this.onMarkupChange = function(markup) {
+        store.push(markup);
+    };
+};
+
+$.fn.lyme.plugins.UndoRedo.LocalStorage = function() {
+    const KEY = 'lyme';
+    
+    var storage = new $.fn.lyme.plugins.UndoRedo.MemoryStorage();
+    
+    var persistedStorage = localStorage.getItem(KEY);
+    if (persistedStorage && (persistedStorageObj = JSON.parse(persistedStorage))) {
+        storage.pointer = persistedStorageObj.pointer;
+        storage.entries = persistedStorageObj.entries;
+    }
+    
+    function save() {
+        localStorage.setItem(KEY, JSON.stringify(storage));
+    }
+
+    /**
+     * We continue editing where we last finished and ignore the actual 
+     * given markup. But only when some markup is available.
+     * 
+     * @param {String} markup
+     * @returns {String}
+     */
+    this.init = function(markup) {
+        var storedMarkup = storage.getMarkup();
+        if (storedMarkup) {
+            return storedMarkup;
+        }
+        var s = storage.init(markup);
+        save();
+        return s;
+    };
+    
+    this.push = function(markup) {
+        storage.push(markup);
+        save();
+    };
+    
+    this.undo = function() {
+        var s = storage.undo();
+        save();
+        return s;
+    };
+    
+    this.redo = function() {
+        var s = storage.redo();
+        save();
+        return s;
+    };
+};
+
+$.fn.lyme.plugins.UndoRedo.MemoryStorage = function() {
+    this.pointer = 0;
+    this.entries = [];
+    
+    this.init = function(markup) {
+        this.push(markup);
+        return markup;
+    };
+    
+    this.push = function(markup) {
+        this.entries = this.entries.slice(0, this.pointer);
+        this.entries[this.pointer++] = markup;
+    };
+    
+    this.undo = function() {
+        this.pointer--;
+        if (this.pointer < 1) {
+            this.pointer = 1;
+        }
+        return this.getMarkup();
+    };
+    
+    this.redo = function() {
+        this.pointer++;
+        if (this.pointer > this.entries.length) {
+            this.pointer = this.entries.length;
+        }
+        return this.getMarkup();
+    };
+    
+    this.getMarkup = function() {
+        return this.entries[this.pointer - 1];
+    };
 };
