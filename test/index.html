@@ -22,12 +22,12 @@
         <script src="../lib/jquery.scroll-to.min.js"></script>
         
         <script>
-            var undoRedo = new $.fn.lyme.plugins.UndoRedo('localStorage');
+            var undoRedo = new $.fn.lyme.plugins.UndoRedo('memory');
             $('button[value="undo"]').on('click', undoRedo.undo);
             $('button[value="redo"]').on('click', undoRedo.redo);
             
             $('#editor').lyme({
-                markup: "# Hello\n\nI'm LYME. I'm your friend.",
+                markup: "# Hello\n\nI'm LYME. I'm your friend.\n\n~~~\na\n\n...\n\nb\n~~~",
                 onPreInit: function($container, options) {
                     console.log('Initializing editor with options:', options);
                 },
