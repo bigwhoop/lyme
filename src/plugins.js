@@ -14,47 +14,6 @@
  */
 $.fn.lyme.plugins = {
     /**
-     * 
-     * @param {String} storage      Either 'memory' (default) or 'localStorage'.
-     * @param {Number} numEntries   The number of entries to keep in the back log (default: 50).
-     * @constructor
-     */
-    UndoRedo: function(storage, numEntries) {
-        if (!$.isNumeric(numEntries)) {
-            numEntries = 50;
-        }
-        
-        var store;
-        switch (storage)
-        {
-            case 'localStorage':
-                store = {
-                    version: 0,
-                    prefix: 'rev-',
-                    push: function(markup) {
-                        window.localStorage.setItem(this.prefix + this.version++, markup);
-                    }
-                };
-                break;
-            
-            case 'memory':
-            default:
-                store = {
-                    entries : [],
-                    push: function(markup) {
-                        this.entries.push(markup);
-                    }
-                };
-                break;
-        }
-        
-        this.onMarkupChange = function(markup, html) {
-            store.push(markup);
-        };
-    },
-
-
-    /**
      * @param {Boolean} disableOnFormSubmit     Whether to automatically disable the guard when a form is submitted.
      * @param {Boolean} isEnabled               Whether the door guard is enabled by default.
      * @constructor

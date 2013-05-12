@@ -1,4 +1,6 @@
 module.exports = function(grunt) {
+    var src_files = ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js', 'src/plugins.undoredo.js'];
+    
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
@@ -6,13 +8,13 @@ module.exports = function(grunt) {
                 banner: '/*! <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) | http://bigwhoop.github.io/lyme | MIT License */\n'
             },
             build: {
-                src: ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js'],
+                src: src_files,
                 dest: 'build/jquery.lyme.min.js'
             }
         },
         concat: {
             build: {
-                src: ['src/lyme.js', 'src/renderers.js', 'src/hotkeys.js', 'src/plugins.js'],
+                src: src_files,
                 dest: 'build/jquery.lyme.js'
             }
         },

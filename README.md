@@ -196,6 +196,31 @@ window.setTimeout(function() {
 }, 20000);
 ~~~
 
+### UndoRedo
+
+Allows to undo and redo markup changes. 
+
+~~~
+$.fn.lyme.plugins.UndoRedo(storage)
+~~~
+
+Param     | Type   | Required | Default Value | Description
+----------|--------|----------|---------------|-------------
+`storage` | String | no       | `memory`      | Either `memory` or `localStorage`. The latter will persist the current state permanently.
+
+~~~
+<button value="undo">Undo</button>
+<button value="redo">Redo</button>
+
+...
+
+var undoRedo = new $.fn.lyme.plugins.UndoRedo();
+$('button[value="undo"]').on('click', undoRedo.undo);
+$('button[value="redo"]').on('click', undoRedo.redo);
+~~~
+
+**Attention:** When using the `localStorage` storage, the editor will be initialized in its last state. This means, that the `text` options is "ignored".
+
 ### Writing your own plugins
 
 You can register plugins (plain objects) with callback functions which are invoked on various events.

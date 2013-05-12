@@ -7,8 +7,6 @@
  * file that was distributed with this source code.
  */
 $.fn.lyme = function(userOptions) {
-    var lyme = this;
-    
     var defaultOptions = {
         markup         : '',
         onMarkupChange : null,
@@ -43,6 +41,47 @@ $.fn.lyme = function(userOptions) {
     });
     options.plugins.push(wrapperPlugin);
     
+    return this.each(function() {
+        new $.fn.lyme.Editor($(this), options);
+    });
+};
+
+
+/**
+ * @param {jQuery} $container
+ * @param {Object} options
+ * @constructor
+ */
+$.fn.lyme.Editor = function($container, options) {
+    var editor = this;
+
+    /**
+     * Initialized the editor
+     */
+    function initialize() {
+        // Stop click events from reaching the document level
+        $container.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Click events normally won't bubble down to the document.
+        // So if we hit it, then hide the editor.
+        $('document').on('click', function() {
+            editor.hideEditor();
+        });
+        
+        // Pass this lyme object to each plugin that has a 'setEditor()' method.    
+        options.plugins.forEach(function(plugin) {
+            if ($.isFunction(plugin.setEditor)) {
+                plugin.setEditor(editor);
+            }
+        });
+        
+        informPlugins('onPreInit', [$container, options]);
+        editor.setMarkup(options.markup);
+        informPlugins('onPostInit', [editor.getFullMarkup(), editor.getFullHTML()]);
+    }
+    
 
     /**
      * @param {String} event
@@ -75,23 +114,12 @@ $.fn.lyme = function(userOptions) {
 
 
     /**
-     * Generate a random ID to assign to each block
-     *
      * @returns {Number}
      */
-    function generateRandomBlockId() {
-        return Math.floor(Math.random() * 999999);
+    var lastBlockId = 0;
+    function getNextBlockId() {
+        return lastBlockId++;
     }
-
-
-    /**
-     * Hide edit controls
-     */
-    lyme.hideEditor = function() {
-        $('.lyme-block .markup:visible textarea').blur();
-        $('.lyme-block .markup:visible').hide();
-        $('.lyme-block .preview').show();
-    };
     
 
     /**
@@ -101,12 +129,12 @@ $.fn.lyme = function(userOptions) {
      * @param {String} blockHTML        The HTML representation of blockText (optional)
      * @returns {$.fn.lyme.Block}
      */
-    lyme.createBlock = function(blockText, blockHTML) {
+    editor.createBlock = function(blockText, blockHTML) {
         if (!blockHTML) {
             blockHTML = options.renderer.render(blockText);
         }
         
-        var blockId   = generateRandomBlockId(),
+        var blockId   = getNextBlockId(),
             $block    = $('<div id="lyme-block-' + blockId + '" class="lyme-block">'),
             $markup   = $('<div class="markup"></div>'),
             $textarea = $('<textarea></textarea>'),
@@ -132,14 +160,14 @@ $.fn.lyme = function(userOptions) {
                     $textarea.val(newBlockText);
                     $preview.html(newBlockHTML);
                 } else { // Append new blocks
-                    var newBlock = lyme.createBlock(newBlockText, newBlockHTML);
+                    var newBlock = editor.createBlock(newBlockText, newBlockHTML);
                     $appendToBlock.after(newBlock.getElement());
                     $appendToBlock = newBlock.getElement();
                 }
             });
             
             if (oldBlockText != blockText) {
-                informPlugins('onMarkupChange', [getFullMarkup(), getFullHTML()]);
+                informPlugins('onMarkupChange', [editor.getFullMarkup(), editor.getFullHTML()]);
             }
             
             return blockText;
@@ -161,14 +189,14 @@ $.fn.lyme = function(userOptions) {
                 var hotKey = options.hotKeys[hotKeyName];
                 if (hotKey.if(e)) {
                     e.preventDefault();
-                    hotKey.do(lyme, block);
+                    hotKey.do(editor, block);
                 }
             }
         });
 
         // If the preview box is clicked, we show the textarea to make the block editable.
         $preview.on('click', function() {
-            lyme.hideEditor();
+            editor.hideEditor();
             informPlugins('onPreStartEditing', [block]);
             $preview.hide();
             $markup.show();
@@ -185,13 +213,13 @@ $.fn.lyme = function(userOptions) {
      * 
      * @returns {string}
      */
-    function getFullMarkup() {
+    editor.getFullMarkup = function() {
         var fullText = [];
-        $('.lyme-block .markup textarea').each(function() {
+        $container.find('.lyme-block .markup textarea').each(function() {
             fullText.push($(this).val());
         });
         return fullText.join("\r\n\r\n");
-    }
+    };
 
 
     /**
@@ -199,42 +227,47 @@ $.fn.lyme = function(userOptions) {
      * 
      * @returns {string}
      */
-    function getFullHTML() {
-        return options.renderer.render(getFullMarkup());
-    }
-    
+    editor.getFullHTML = function() {
+        return options.renderer.render(editor.getFullMarkup());
+    };
 
-    // Click events normally won't bubble down to the document.
-    // So if we hit it, then hide the editor.
-    $(document).on('click', function() {
-        lyme.hideEditor();
-    });
-    
-    
-    return this.each(function() {
-        var $container = $(this),
-            blocks     = splitText(options.markup);
-        
-        informPlugins('onPreInit', [$container, options]);
 
-        // Stop click events from reaching the document level
-        $container.on('click', function(e) {
-            e.stopPropagation();
-        });
-
-        $.each(blocks, function(idx, blockText) {
-            var block = lyme.createBlock(blockText);
+    /**
+     * @param {String} markup
+     */
+    editor.setMarkup = function(markup) {
+        $container.empty();
+        $.each(splitText(markup), function(idx, blockText) {
+            var block = editor.createBlock(blockText);
             $container.append(block.getElement());
         });
-        
-        informPlugins('onPostInit', [getFullMarkup(), getFullHTML()]);
-    });
+    };
+
+
+    /**
+     * Return the element of this LYME editor.
+     * 
+     * @returns {jQuery}
+     */
+    editor.getElement = function() {
+        return $container;
+    };
+
+
+    /**
+     * Hide edit controls
+     */
+    editor.hideEditor = function() {
+        $container.find('.lyme-block .markup:visible textarea').blur();
+        $container.find('.lyme-block .markup:visible').hide();
+        $container.find('.lyme-block .preview').show();
+    };
+    
+    initialize();
 };
 
 
 /**
- * Wrapper object for a block.
- * 
  * @constructor
  * @param {jQuery} $block
  */
