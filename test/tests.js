@@ -49,5 +49,7 @@ QUnit.test("Markdown Extra", function() {
     strictEqual(markdownExtraRenderer.render("a\n\n    Hello"), "<p>a</p>\n\n<pre><code>Hello\n</code></pre>\n");
     strictEqual(markdownExtraRenderer.render("a\n\n    <script>log('bla');</script>"), "<p>a</p>\n\n<pre><code>&lt;script&gt;log('bla');&lt;/script&gt;\n</code></pre>\n");
     strictEqual(markdownExtraRenderer.render("~~~\n<script>log('bla');</script>\n~~~"), "<pre><code>&lt;script&gt;log('bla');&lt;/script&gt;\n</code></pre>\n");
+    strictEqual(markdownExtraRenderer.render("<script></script>"), "<script></script>\n");
+    strictEqual(markdownExtraRenderer.render("`<script></script>`"), "<p><code>&lt;script&gt;&lt;/script&gt;</code></p>\n");
 });
 
