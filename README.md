@@ -19,12 +19,18 @@ Markdown Extra   | `lib/js-markdown-extra.js` ([JS Markdown Extra](https://githu
 
 But don't worry, you can override the `renderer` option with an object providing a `render(string markup) string` function and plug in your own renderer.
 
+You can also overwrite the way you want to split blocks by providing a `split(string markup) string[]` function.
+
 ~~~
-$('#lyme').lyme({
+$('#editor').lyme({
     renderer : {
         render: function(markup) {
             var html = ...;
             return html;
+        },
+        split: function(markup) {
+            var blocks = ...;
+            return blocks;
         }
     }
 });
