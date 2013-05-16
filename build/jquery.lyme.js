@@ -41,9 +41,15 @@ $.fn.lyme = function(userOptions) {
     });
     options.plugins.push(wrapperPlugin);
     
-    return this.each(function() {
-        new $.fn.lyme.Editor($(this), options);
+    if (this.length == 1) {
+        return new $.fn.lyme.Editor($(this), options);
+    }
+    
+    var editors = {};
+    this.each(function() {
+        editors[this.selector] = new $.fn.lyme.Editor($(this), options);
     });
+    return editors;
 };
 
 
@@ -81,7 +87,6 @@ $.fn.lyme.Editor = function($container, options) {
         editor.setMarkup(options.markup);
         informPlugins('onPostInit', [editor.getFullMarkup(), editor.getFullHTML()]);
     }
-    
 
     /**
      * @param {String} event
@@ -99,43 +104,27 @@ $.fn.lyme.Editor = function($container, options) {
         });
     }
     
+    /**
+     * @param {Object} renderer
+     */
+    editor.setRenderer = function(renderer) {
+        options.renderer = renderer;
+    };
     
     /**
-     * Creates blocks by splitting up text by "paragraphs" (two linebreaks).
+     * Creates blocks by splitting up text by "paragraphs" (two line breaks).
+     * If the renderer provides a splitMarkup function, it is invoked instead
+     * of the default splitting.
      *
-     * @param {String} text
+     * @param {String} markup
      * @returns {Array}
      */
-    function splitText(text) {
-        text = text.replace(/\r/g, '');
-        text = text.replace(/\n\n\n/g, "\n\n");
-        
-        var texts = text.split("\n\n");
-        
-        // Make sure we don't break up fenced code blocks.
-        var blocks = [];
-        var codeBlock = [];
-        for (var i = 0; i < texts.length; i++) {
-            if (codeBlock.length == 0) {
-                if (texts[i].indexOf('~~~') > -1) {
-                    codeBlock.push(texts[i]);
-                } else {
-                    blocks.push(texts[i]);
-                }
-            } else {
-                codeBlock.push(texts[i]);
-                if (texts[i].indexOf('~~~') > -1) {
-                    blocks.push(codeBlock.join("\n\n"));
-                    codeBlock = [];
-                }
-            }
+    editor.splitMarkup = function(markup) {
+        if ($.isFunction(options.renderer.split)) {
+            return options.renderer.split(markup);
         }
-        if (codeBlock.length) {
-            blocks.push(codeBlock.join("\n\n"));
-        }
-        return blocks;
-    }
-
+        return markup.replace(/\r/g, '').replace(/\n\n\n/g, "\n\n").split("\n\n");
+    };
 
     /**
      * @returns {Number}
@@ -144,7 +133,6 @@ $.fn.lyme.Editor = function($container, options) {
     function getNextBlockId() {
         return lastBlockId++;
     }
-    
 
     /**
      * Render a block
@@ -177,7 +165,7 @@ $.fn.lyme.Editor = function($container, options) {
             var blockText = $textarea.val(),
                 $appendToBlock = $block;
             
-            $.each(splitText(blockText), function(idx, newBlockText) {
+            $.each(editor.splitMarkup(blockText), function(idx, newBlockText) {
                 var newBlockHTML = options.renderer.render(newBlockText);
                 
                 if (idx == 0) { // Replace current block
@@ -230,8 +218,7 @@ $.fn.lyme.Editor = function($container, options) {
 
         return block;
     };
-
-
+    
     /**
      * Return the Markup from all blocks.
      * 
@@ -245,7 +232,6 @@ $.fn.lyme.Editor = function($container, options) {
         return fullText.join("\r\n\r\n");
     };
 
-
     /**
      * Render the Markup from all blocks.
      * 
@@ -255,18 +241,16 @@ $.fn.lyme.Editor = function($container, options) {
         return options.renderer.render(editor.getFullMarkup());
     };
 
-
     /**
      * @param {String} markup
      */
     editor.setMarkup = function(markup) {
         $container.empty();
-        $.each(splitText(markup), function(idx, blockText) {
+        $.each(editor.splitMarkup(markup), function(idx, blockText) {
             var block = editor.createBlock(blockText);
             $container.append(block.getElement());
         });
     };
-
 
     /**
      * Return the element of this LYME editor.
@@ -276,7 +260,6 @@ $.fn.lyme.Editor = function($container, options) {
     editor.getElement = function() {
         return $container;
     };
-
 
     /**
      * Hide edit controls
@@ -368,13 +351,54 @@ $.fn.lyme.renderers = {
      */
     JSMarkdownExtra: function() {
         var converter;
+
+        /**
+         * Renders the markup into HTML
+         * 
+         * @param {String} markup
+         * @returns {String}
+         */
         this.render = function(markup) {
             if (!converter) {
                 converter = new MarkdownExtra_Parser();
                 converter.init();
             }
             return converter.transform(markup);
-        }
+        };
+        
+        /**
+         * Creates blocks by splitting up text by "paragraphs" (two line breaks).
+         * Also makes sure that fenced code blocks are not separated.
+         *
+         * @param {String} markup
+         * @returns {Array}
+         */
+        this.split = function(markup) {
+            var texts = markup.replace(/\r/g, '').replace(/\n\n\n/g, "\n\n").split("\n\n")
+            
+            // Make sure we don't break up fenced code blocks.
+            var blocks = [];
+            var codeBlock = [];
+            for (var i = 0; i < texts.length; i++) {
+                if (codeBlock.length == 0) {
+                    if (texts[i].indexOf('~~~') > -1) {
+                        codeBlock.push(texts[i]);
+                    } else {
+                        blocks.push(texts[i]);
+                    }
+                } else {
+                    codeBlock.push(texts[i]);
+                    if (texts[i].indexOf('~~~') > -1) {
+                        blocks.push(codeBlock.join("\n\n"));
+                        codeBlock = [];
+                    }
+                }
+            }
+            if (codeBlock.length) {
+                blocks.push(codeBlock.join("\n\n"));
+            }
+            return blocks;
+        };
     },
     
     /**
@@ -385,12 +409,19 @@ $.fn.lyme.renderers = {
      */
     Showdown: function() {
         var converter;
+
+        /**
+         * Renders the markup into HTML
+         * 
+         * @param {String} markup
+         * @returns {String}
+         */
         this.render = function(markup) {
             if (!converter) {
                 converter = new Showdown.converter();
             }
             return converter.makeHtml(markup);
-        }
+        };
     }
 };
 /**

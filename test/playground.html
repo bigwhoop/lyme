@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="../build/lyme.css">
+    </head>
+    <body>
+        <p>
+            <button value="undo">Undo</button>
+            <button value="redo">Redo</button>
+        </p>
+        
+        <div id="editor" class="lyme"></div>
+        
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="../src/lyme.js"></script>
+        <script src="../src/renderers.js"></script>
+        <script src="../src/hotkeys.js"></script>
+        <script src="../src/plugins.js"></script>
+        <script src="../src/plugins.undoredo.js"></script>
+        <script src="../lib/js-markdown-extra.js"></script>
+        <script src="../lib/jquery.scroll-to.min.js"></script>
+        
+        <script>
+            MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
+            
+            var undoRedo = new $.fn.lyme.plugins.UndoRedo('memory');
+            $('button[value="undo"]').on('click', undoRedo.undo);
+            $('button[value="redo"]').on('click', undoRedo.redo);
+            
+            $('#editor').lyme({
+                markup: "# Hello\n\nI'm LYME. I'm your friend.\n\n~~~\na\n\n...\n\nb\n~~~",
+                onPreInit: function($container, options) {
+                    console.log('Initializing editor with options:', options);
+                },
+                onPostInit: function(markup, html) {
+                    console.log('Successfully loaded ' + markup.length + ' characters of markup.');
+                },
+                onMarkupChange: function() {
+                    console.log('The markup has changed.');
+                },
+                plugins: [
+                    new $.fn.lyme.plugins.ContentGuard(),
+                    undoRedo
+                ]
+            });
+        </script>
+    </body>
+</html>
