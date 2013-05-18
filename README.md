@@ -95,7 +95,7 @@ $('#editor').lyme({
 });
 ~~~
 
-The `build` directory contains a `jquery.lyme-markdown-extra.min.js` that consists of `build/jquery.lyme.min.js`, `lib/js-markdown-extra.js` and `lib/jquery.scroll-to.min.js`. Just to make it a bit easier. :)
+The `build` directory contains a `jquery.lyme-markdown-extra.min.js` that consists of `build/jquery.lyme.min.js` and `lib/js-markdown-extra.js`. Just to make it a bit easier. :)
 
 ### Options
 
@@ -116,23 +116,22 @@ Plugins enhance the functionality of LYME. Some plugins are shipped with LYME an
 
 ### ScrollTo
 
-Provides smooth scrolling when to a block block you've started to edit.
+Provides smooth scrolling to a block when you start to edit it. This plugin is enabled by default.
 
 ~~~
 $.fn.lyme.plugins.ScrollTo(delay)
 ~~~
 
-Param               | Type                   | Required | Default Value | Description
---------------------|------------------------|----------|---------------|-------------
-`delay`             | Number                 | no       | `200`         | How fast the page scrolls to the activated block.
+Param       | Type    | Required | Default Value | Description
+------------|---------|----------|---------------|-------------
+`delay`     | Number  | no       | `300`         | How fast the page scrolls to the activated block.
+`topOffset` | Number  | no       | `50`          | The offset to the top of the page (in pixels).
 
 ~~~
-new $.fn.lyme.plugins.ScrollTo()
-new $.fn.lyme.plugins.ScrollTo(500)
+new $.fn.lyme.plugins.ScrollTo();
+new $.fn.lyme.plugins.ScrollTo(500);
+new $.fn.lyme.plugins.ScrollTo(200, 100);
 ~~~
-
-* You must include the ScrollTo jQuery plugin: `<script src="lib/jquery.scroll-to.min.js"></script>`
-* The plugin is enabled by default, if the `$.scrollTo()` function is available.
 
 ### TextareaAdapter
 
