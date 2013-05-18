@@ -95,6 +95,8 @@ $('#editor').lyme({
 });
 ~~~
 
+The `build` directory contains a `jquery.lyme-markdown-extra.min.js` that consists of `build/jquery.lyme.min.js`, `lib/js-markdown-extra.js` and `lib/jquery.scroll-to.min.js`. Just to make it a bit easier. :)
+
 ### Options
 
 Name              | Type                 | Description
