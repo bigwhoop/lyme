@@ -654,18 +654,19 @@ $.fn.lyme.plugins = {
     },
     
     /**
-     * Scroll to active block using jQuery scrollTo plugin
+     * Scrolls to the active block
      * 
      * @constructor
      * @param {Number} delay
+     * @param {Number} topOffset
      */
-    ScrollTo: function(delay) {
-        if (!$.isFunction($.scrollTo)) {
-            return;
+    ScrollTo: function(delay, topOffset) {
+        if (!$.isNumeric(delay)) {
+            delay = 300;
         }
         
-        if (!$.isNumeric(delay)) {
-            delay = 200;
+        if (!$.isNumeric(topOffset)) {
+            topOffset = 50;
         }
         
         var scrollTimeout;
@@ -673,13 +674,9 @@ $.fn.lyme.plugins = {
             window.clearTimeout(scrollTimeout);
             scrollTimeout = window.setTimeout(
                 function() {
-                    $.scrollTo(
-                        block.getElement(),
-                        {
-                            duration : 750,
-                            offset   : { top : -100, left : 0 }
-                        }
-                    );
+                    $('html, body').animate({
+                    	scrollTop: block.getElement().offset().top - topOffset
+                    }, 750);
                 },
                 delay
             );

@@ -13,9 +13,14 @@ module.exports = function(grunt) {
             },
             markdown_extra: {
                 options: {
-                    banner: '/*! <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) with Markdown Extra and scroll_to plugin | http://bigwhoop.github.io/lyme | MIT License */\n'
+                    banner: '/*! <%= pkg.name %> v<%= pkg.version %> (<%= grunt.template.today("yyyy-mm-dd") %>) with Markdown Extra and scroll_to plugin | http://bigwhoop.github.io/lyme | MIT License */\n\n'
+                          + '/**\n'
+                          + ' * The following libraries are included in this file:\n'
+                          + ' *\n'
+                          + ' * - JS Markdown Extra, Copyright (c) 2006 js-markdown-extra developers, https://github.com/tanakahisateru/js-markdown-extra\n'
+                          + ' */\n\n'
                 },
-                src: src_files.concat(['jquery.scroll-to.min.js', 'lib/js-markdown-extra.js']),
+                src: src_files.concat(['lib/js-markdown-extra.js']),
                 dest: 'build/jquery.lyme-markdown-extra.min.js'
             }
         },
