@@ -44,29 +44,34 @@ $.fn.lyme.renderers = {
          * @returns {Array}
          */
         this.split = function(markup) {
-            var texts = markup.replace(/\r/g, '').replace(/\n\n\n/g, "\n\n").split("\n\n")
+            markup = markup.replace(/\r/g, '');
             
-            // Make sure we don't break up fenced code blocks.
-            var blocks = [];
-            var codeBlock = [];
-            for (var i = 0; i < texts.length; i++) {
-                if (codeBlock.length == 0) {
-                    if (texts[i].indexOf('~~~') > -1) {
-                        codeBlock.push(texts[i]);
-                    } else {
-                        blocks.push(texts[i]);
+            var re = new RegExp(
+                '(?:'           + // non-capturing group
+                  '~{3,}[ ]*\n' + // anything that starts with at least 3 tildes followed by whitespace and a line break
+                  '[^]*?'       + // any character, ungreedy
+                  '\n~{3,}'     + // and ends with a new line followed by at least 3 tildes
+                ')+'            , // each match is one or more of the things described in the group
+                "g"
+            );
+            
+            var placeholders = [];
+            markup.replace(re, function(match) {
+                var placeholder = "_LYME_PLACEHOLDER_" + placeholders.length + "_";
+                markup = markup.replace(match, placeholder);
+                placeholders.push(match);
+            });
+            
+            var blocks = markup.replace(/\n\n\n/g, "\n\n").split("\n\n");
+            
+            for (var placeholderIdx in placeholders) {
+                $.each(blocks, function(idx, block) {
+                    if (block == "_LYME_PLACEHOLDER_" + placeholderIdx + "_") {
+                        blocks[idx] = placeholders[placeholderIdx];
                     }
-                } else {
-                    codeBlock.push(texts[i]);
-                    if (texts[i].indexOf('~~~') > -1) {
-                        blocks.push(codeBlock.join("\n\n"));
-                        codeBlock = [];
-                    }
-                }
+                });
             }
-            if (codeBlock.length) {
-                blocks.push(codeBlock.join("\n\n"));
-            }
+            
             return blocks;
         };
     },
@@ -93,4 +98,19 @@ $.fn.lyme.renderers = {
             return converter.makeHtml(markup);
         };
     }
+        
+    /**
+     * Wiki markup conversion using wiky.js
+     * 
+     * @constructor
+     * @param {Object} options      Options, delegated to wiky.process()
+     * @returns {Object}
+     */
+    /*WikyJS: function(options) {
+        this.render = function(markup) {
+            var html = wiky.process(markup, options);
+            html = '<p>' + html.replace(/\n\n/, '</p><p>') + '</p>';
+            return html;
+        };
+    }*/
 };

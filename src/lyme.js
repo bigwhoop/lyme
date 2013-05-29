@@ -113,8 +113,8 @@ $.fn.lyme.Editor = function($container, options) {
     
     /**
      * Creates blocks by splitting up text by "paragraphs" (two line breaks).
-     * If the renderer provides a splitMarkup function, it is invoked instead
-     * of the default splitting.
+     * If the renderer provides a split() function, it is invoked instead
+     * of the default behavior in this function.
      *
      * @param {String} markup
      * @returns {Array}
@@ -124,6 +124,21 @@ $.fn.lyme.Editor = function($container, options) {
             return options.renderer.split(markup);
         }
         return markup.replace(/\r/g, '').replace(/\n\n\n/g, "\n\n").split("\n\n");
+    };
+    
+    /**
+     * Joins blocks again to provide the complete markup of all blocks.
+     * If the renderer provides a join() function, it is invoked instead
+     * of the default behavior in this function.
+     *
+     * @param {Array} markups
+     * @returns {String}
+     */
+    editor.joinMarkup = function(markups) {
+        if ($.isFunction(options.renderer.join)) {
+            return options.renderer.join(markups);
+        }
+        return markups.join("\n\n");
     };
 
     /**
@@ -229,7 +244,7 @@ $.fn.lyme.Editor = function($container, options) {
         $container.find('.lyme-block .markup textarea').each(function() {
             fullText.push($(this).val());
         });
-        return fullText.join("\r\n\r\n");
+        return editor.joinMarkup(fullText);
     };
 
     /**

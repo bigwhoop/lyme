@@ -53,3 +53,16 @@ QUnit.test("Markdown Extra", function() {
     strictEqual(markdownExtraRenderer.render("`<script></script>`"), "<p><code>&lt;script&gt;&lt;/script&gt;</code></p>\n");
 });
 
+
+/*var wikyRenderer = new $.fn.lyme.renderers.WikyJS();
+QUnit.test("Wiki", function() {
+    editor.setRenderer(wikyRenderer);
+    
+    var markup = "Hello [b]Tom[/b]!\n\nURL: [url=http://example.com]Example[/url]";
+    var expected = "Hello <b>Tom</b>!<br><br>URL: <a style=\"text-decoration: underline; color: blue\" href=\"http://example.com\">Example</a>";
+    
+    editor.setMarkup(markup);
+    strictEqual(editor.getFullHTML(), expected);
+    strictEqual(bbCodeRenderer.render(markup), expected);
+    //'\n\n[code]Some code here[/code]\n\nHa, , [b][color=blue]I see[/color][/b]'
+});*/

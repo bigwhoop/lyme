@@ -12,6 +12,8 @@
         
         <div id="editor" class="lyme"></div>
         
+        <div id="editor-bbcode" class="lyme"></div>
+        
         <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         <script src="src/lyme.js"></script>
         <script src="src/renderers.js"></script>
@@ -19,6 +21,7 @@
         <script src="src/plugins.js"></script>
         <script src="src/plugins.undoredo.js"></script>
         <script src="lib/js-markdown-extra.js"></script>
+        <script src="lib/wiky.js"></script>
         
         <script>
             MARKDOWN_EMPTY_ELEMENT_SUFFIX = '>';
@@ -28,7 +31,11 @@
             $('button[value="redo"]').on('click', undoRedo.redo);
             
             $('#editor').lyme({
-                markup: "# Hello\n\nI'm LYME. I'm your friend.\n\n~~~\na\n\n...\n\nb\n~~~",
+                markup: "# Hello\n\nI'm LYME. I'm your friend.\n\n~~~\na ~~~\n\n...\n\nb\n~~~",
+                renderer: new $.fn.lyme.renderers.JSMarkdownExtra(),
+                /*markup: "'''Emanuel David \"Manu\" Ginóbili''' (born 28 July 1977) is an Argentine professional [[basketball]] player. Coming from a family of professional basketball players, he is a member of the [[Argentina national basketball team|Argentine men's national basketball team]] and the [[San Antonio Spurs]] in the [[National Basketball Association]] (NBA).\n\nGinóbili spent the early part of his basketball career in [[Argentina]] and [[Italy]], where he won [[#Honors|several individual and team honors]]. His stint with Italian side [[Virtus Bologna|Kinder Bologna]] was particularly productive, earning two [[Lega Basket Serie A awards|Italian League MVP]] awards, the [[Euroleague Final Four MVP|Euroleague Finals MVP]] and the 2001 Euroleague and [[Triple Crown in Basketball|Triple Crown]] championships. The [[shooting guard]] was selected as the 57th overall pick in the [[1999 NBA Draft]] and is considered one of the biggest draft steals of all time. Ginóbili returned to Italy and only joined the Spurs in 2002. He did not take long to establish himself as a key player for the Spurs, and has since earned three NBA championship rings as well as being named an [[List of NBA All-Stars|All-Star]] in 2005 and 2011. In the [[2007–08 NBA season|2007–08]] season, he was named the [[NBA Sixth Man of the Year]]."
+                        + "\n\n\n# 1\n# 2\n# 3",
+                renderer: new $.fn.lyme.renderers.WikyJS(),*/
                 onPreInit: function($container, options) {
                     console.log('Initializing editor with options:', options);
                 },
