@@ -280,7 +280,6 @@ $.fn.lyme.Editor = function($container, options) {
      * Hide edit controls
      */
     editor.hideEditor = function() {
-        $container.find('.lyme-block .markup:visible textarea').blur();
         $container.find('.lyme-block .markup:visible').hide();
         $container.find('.lyme-block .preview').show();
     };
