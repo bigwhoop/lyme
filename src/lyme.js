@@ -224,6 +224,7 @@ $.fn.lyme.Editor = function($container, options) {
         // If the preview box is clicked, we show the textarea to make the block editable.
         $preview.on('click', function() {
             editor.hideEditor();
+            
             informPlugins('onPreStartEditing', [block]);
             $preview.hide();
             $markup.show();
@@ -280,6 +281,7 @@ $.fn.lyme.Editor = function($container, options) {
      * Hide edit controls
      */
     editor.hideEditor = function() {
+        $container.find('.lyme-block .markup:visible textarea:focus').blur();
         $container.find('.lyme-block .markup:visible').hide();
         $container.find('.lyme-block .preview').show();
     };
