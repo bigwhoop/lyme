@@ -1,69 +1,10 @@
-# Welcome to LYME
+# LYME
 
-LYME stands for **<u>L</u>ow Ke<u>y</u> <u>M</u>arkup <u>E</u>ditor** and guess what, it's simply that. LYME aims to stay in the background and provide you with a distraction-free interface for writing text in your favorite markup language. 
+LYME stands for **<u>L</u>ow Ke<u>y</u> <u>M</u>arkup <u>E</u>ditor** and guess what, it's simply that. LYME aims to stay in the background and provide a distraction-free interface for writing text in your favorite markup language.
 
-## Editor
+The given text - or markup if you will - is split into blocks. The delimiter is specific to the markup language and renderer you use. For example Markdown is delimited by two line breaks. Think of it as a paragraph.
 
-### Blocks
-
-The given text - or markup if you will - is split into blocks. A block is delimited by two line breaks. Think of it as a paragraph. You can click any block to start editing. **Just try it and click this text.** As soon as you leave a block the `onMarkupChange` callback is invoked.
-
-### Renderers and Markup Languages
-
-Renderers transform markup into HTML. What markup language you use is up to you. LYME ships with the following renderers (*Markdown Extra* is the default renderer):
-
-Markup Language  | Library Dependencies                                                                                  | Constructor
----------------- | ------------------------------------------------------------------------------------------------------|---------------------------------
-Markdown         | `lib/showdown.min.js` ([Showdown](https://github.com/coreyti/showdown))                               | `$.fn.renderers.Showdown`
-Markdown Extra   | `lib/js-markdown-extra.js` ([JS Markdown Extra](https://github.com/tanakahisateru/js-markdown-extra)) | `$.fn.renderers.JSMarkdownExtra`
-
-But don't worry, you can override the `renderer` option with an object providing a `render(string markup) string` function and plug in your own renderer.
-
-You can also overwrite the way you want to split and/or join blocks by providing a `split(string markup) string[]` and/or `join(string[] blocks) string` function. The default separator is `\n\n`;
-
-~~~
-$('#editor').lyme({
-    renderer : {
-        render: function(markup) {
-            var html = <render markup to HTML>;
-            return html;
-        },
-        split: function(markup) {
-            var blocks = <split markup into blocks>;
-            return blocks;
-        },
-        join: function(blocks) {
-            var markup = <join blocks>;
-            return markup;
-        }
-    }
-});
-~~~
-
-### Hot Keys
-
-If you're editing a block you can use the following hot keys to navigate the editor:
-
-Key Combination                   | Effect
-----------------------------------|---------------------------
-`TAB`                             | Indents code by 4 spaces.
-`CTRL + ALT + DOWN ARROW`         | Moves to the next block.
-`CTRL + ALT + UP ARROW`           | Moves to the previous block.
-`CTRL + ALT + BACKSPACE`          | Deletes the current block.
-`CTRL + ALT + RETURN`             | Adds new block below the current block.
-`CTRL + ALT + SHIFT + DOWN ARROW` | Places the current block after the next block.
-`CTRL + ALT + SHIFT + UP ARROW`   | Places the current block before the previous block.
-`ESCAPE`                          | Leaves the current block / exits the editor.
-
-You can provide your own hot keys if you wish. Have a look at the `$.fn.lyme.hotKeys` object and the `hotKeys` option.
-
-Some hot keys, like `TAB`, are configurable:
-
-~~~
-$.fn.lyme.hotKeys.tabbing.indentation = "\t"; // Use TAB
-$.fn.lyme.hotKeys.tabbing.indentation = '  '; // Use two spaces
-~~~
-
+You can click any block to start editing. **Just try it and click this text.**
 
 ## Integration
 
@@ -95,7 +36,7 @@ LYME provides a shortcut to read and write to a textarea element. Just provide t
 
 ~~~
 $('#editor').lyme({
-    markup: $('#textarea')
+    markup: $('#text')
 });
 ~~~
 
@@ -111,7 +52,63 @@ Name              | Type                 | Description
 `onMarkupChange`  | Function             | A function that is called whenever the markup changes. Also see the plugins `onMarkupChange` callback.
 `renderer`        | Object               | An object providing a `renderer(string markup) string` function (see renderers section).
 `plugins`         | Array                | See plugins section.
-`hotKeys`         | Object               | See hot keys section. Each hot key must have an unique key identifier in the `hotKeys` object.
+`hotKeys`         | Object               | See hot keys section. Each hot key must have an unique key identifier in the `hotKeys` object. 
+
+## Renderers and Markup Languages
+
+Renderers transform markup into HTML. What markup language you use is up to you. LYME ships with the following renderers (*Markdown Extra* is the default renderer):
+
+Markup Language  | Library Dependencies                                                                                  | Constructor
+---------------- | ------------------------------------------------------------------------------------------------------|---------------------------------
+Markdown         | `lib/showdown.min.js` ([Showdown](https://github.com/coreyti/showdown))                               | `$.fn.renderers.Showdown`
+Markdown Extra   | `lib/js-markdown-extra.js` ([JS Markdown Extra](https://github.com/tanakahisateru/js-markdown-extra)) | `$.fn.renderers.JSMarkdownExtra`
+
+But don't worry, you can override the `renderer` option with an object providing a `render(string markup) string` function and plug in your own renderer.
+
+You can also overwrite the way you want to split and/or join blocks by providing a `split(string markup) string[]` and/or `join(string[] blocks) string` function. The default separator is `\n\n`;
+
+~~~
+$('#editor').lyme({
+    renderer : {
+        render: function(markup) {
+            var html = <render markup to HTML>;
+            return html;
+        },
+        split: function(markup) {
+            var blocks = <split markup into blocks>;
+            return blocks;
+        },
+        join: function(blocks) {
+            var markup = <join blocks>;
+            return markup;
+        }
+    }
+});
+~~~
+
+## Hot Keys
+
+If you're editing a block you can use the following hot keys to navigate the editor:
+
+Key Combination                   | Effect
+----------------------------------|---------------------------
+`TAB`                             | Indents code by 4 spaces.
+`CTRL + ALT + DOWN ARROW`         | Moves to the next block.
+`CTRL + ALT + UP ARROW`           | Moves to the previous block.
+`CTRL + ALT + BACKSPACE`          | Deletes the current block.
+`CTRL + ALT + RETURN`             | Adds new block below the current block.
+`CTRL + ALT + SHIFT + DOWN ARROW` | Places the current block after the next block.
+`CTRL + ALT + SHIFT + UP ARROW`   | Places the current block before the previous block.
+`ESCAPE`                          | Leaves the current block / exits the editor.
+
+You can provide your own hot keys if you wish. Have a look at the `$.fn.lyme.hotKeys` object and the `hotKeys` option.
+
+Some hot keys, like `TAB`, are configurable:
+
+~~~
+$.fn.lyme.hotKeys.tabbing.indentation = "\t"; // Use TAB
+$.fn.lyme.hotKeys.tabbing.indentation = '  '; // Use two spaces
+~~~
 
 
 ## Plugins
