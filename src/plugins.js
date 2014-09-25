@@ -129,5 +129,45 @@ $.fn.lyme.plugins = {
                 delay
             );
         };
+    },
+    
+    /**
+     * Blinks/highlights the edited text block for a short time after the editor is exited. 
+     * 
+     * @constructor
+     * @param {String} color      Color (CSS) in which to blink
+     */
+    Blink: function(color) {
+        if (!color) {
+            color = '#FFFBCC';
+        }
+      
+        var $visibleElements = [];
+        this.onPreStopEditing = function() {
+            $visibleElements = this.getElement().find('.lyme-block .preview:hidden');
+        };
+        this.onPostStopEditing = function() {
+            $visibleElements.each(function() {
+                var $preview = $(this);
+                var originalBgColor = $preview.css('backgroundColor');
+                
+                $preview.css({
+                    opacity: 0,
+                    backgroundColor: color
+                });
+                
+                $preview.animate(
+                    { opacity: 1 },
+                    200,
+                    function() {
+                        window.setTimeout(function() {
+                            $preview.css({
+                                backgroundColor: originalBgColor
+                            });
+                        }, 600);
+                    }
+                );
+            });
+        };
     }
 };

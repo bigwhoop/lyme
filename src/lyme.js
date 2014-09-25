@@ -13,7 +13,7 @@ $.fn.lyme = function(userOptions) {
         onPreInit      : null,
         onPostInit     : null,
         renderer       : new $.fn.lyme.renderers.JSMarkdownExtra(),
-        plugins        : [ new $.fn.lyme.plugins.ScrollTo() ],
+        plugins        : [ new $.fn.lyme.plugins.ScrollTo(), new $.fn.lyme.plugins.Blink() ],
         hotKeys        : $.fn.lyme.hotKeys
     };
     
@@ -99,7 +99,7 @@ $.fn.lyme.Editor = function($container, options) {
         
         options.plugins.forEach(function(plugin) {
             if ($.isFunction(plugin[event])) {
-                plugin[event].apply(null, data);
+                plugin[event].apply(editor, data);
             }
         });
     }
