@@ -245,14 +245,17 @@ Called when LYME is initialized. The returned string will overwrite the `markup`
 `onMarkupChange(string markup, string html)`  
 Called when the markup of a block was updated. Returns the markup and HTML of all blocks.
 
-`onBlockChange(string markup, string html)`  
-Called when the markup of a block was updated. Returns the markup and HTML of the edited block.
-
 `onPreStartEditing($.fn.lyme.Block $block)`  
 Called when a block is about to go into edit mode. 
 
 `onPostStartEditing($.fn.lyme.Block block)`  
 Called after a block went into edit mode.
+
+`onPreStopEditing()`  
+Called before the edit mode for a block is left. 
+
+`onPostStopEditing()`  
+Called after the edit mode for a block is left.
 
 ## Browser Support
 
