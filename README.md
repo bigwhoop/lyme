@@ -134,6 +134,24 @@ new $.fn.lyme.plugins.ScrollTo(500);
 new $.fn.lyme.plugins.ScrollTo(200, 100);
 ~~~
 
+### Blink
+
+Blinks (or flashes) the just edited text after the editor is exited. This plugin is enabled by default.
+
+~~~
+$.fn.lyme.plugins.Blink(color)
+~~~
+
+Param       | Type    | Required | Default Value | Description
+------------|---------|----------|---------------|-------------
+`color`     | String  | no       | `#FFFBCC`     | The background color used to for flashing/blinking.
+
+~~~
+new $.fn.lyme.plugins.Blink();
+new $.fn.lyme.plugins.Blink('red');
+new $.fn.lyme.plugins.Blink('#dd0033');
+~~~
+
 ### TextareaAdapter
 
 Reads the markup from a textarea and updates the value whenever the markup changes.
